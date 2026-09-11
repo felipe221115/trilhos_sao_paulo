@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Trilhos de São Paulo</title>
 
     <style>
@@ -115,6 +116,36 @@
             color: #666;
         }
 
+        .lines {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .lines h2 {
+            margin-bottom: 20px;
+        }
+
+        .line-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+            cursor: pointer;
+        }
+
+        .line-card:hover {
+            background: #f8fafc;
+        }
+
+        .line-card h3 {
+            margin-bottom: 6px;
+        }
+
+        .line-card p {
+            color: #666;
+        }
+
         .result {
             margin-top: 25px;
             background: white;
@@ -171,31 +202,38 @@
     </section>
 
     <section class="systems">
+
         <h2>Sistemas</h2>
 
         <div class="cards">
 
-            <div class="card">
+            <div class="card" onclick="mostrarLinhas('metro')">
                 <h3>🚇 Metrô</h3>
                 <p>Conheça as linhas, estações e integrações.</p>
             </div>
 
-            <div class="card">
+            <div class="card" onclick="mostrarLinhas('cptm')">
                 <h3>🚆 CPTM</h3>
                 <p>Explore as linhas e estações ferroviárias.</p>
             </div>
 
-            <div class="card">
+            <div class="card" onclick="mostrarLinhas('viamobilidade')">
                 <h3>🚆 ViaMobilidade</h3>
                 <p>Informações sobre as linhas operadas pela empresa.</p>
             </div>
 
-            <div class="card">
+            <div class="card" onclick="mostrarLinhas('viaquatro')">
                 <h3>🚆 ViaQuatro</h3>
                 <p>Conheça a Linha 4-Amarela.</p>
             </div>
 
         </div>
+
+    </section>
+
+    <section id="lines" class="lines">
+        <h2 id="linesTitle"></h2>
+        <div id="linesList"></div>
     </section>
 
     <div id="result" class="result"></div>
@@ -207,25 +245,141 @@
 </footer>
 
 <script>
+
+    const sistemas = {
+
+        metro: {
+            nome: "🚇 Metrô",
+            linhas: [
+                ["Linha 1-Azul", "Jabaquara ↔ Tucuruvi"],
+                ["Linha 2-Verde", "Vila Prudente ↔ Vila Madalena"],
+                ["Linha 3-Vermelha", "Corinthians-Itaquera ↔ Palmeiras-Barra Funda"],
+                ["Linha 15-Prata", "Vila Prudente ↔ Jardim Colonial"],
+                ["Linha 17-Ouro", "Morumbi ↔ Aeroporto de Congonhas"]
+            ]
+        },
+
+        cptm: {
+            nome: "🚆 CPTM",
+            linhas: [
+                ["Linha 7-Rubi", "Jundiaí ↔ Palmeiras-Barra Funda"],
+                ["Linha 10-Turquesa", "Rio Grande da Serra ↔ Luz"],
+                ["Linha 11-Coral", "Estudantes ↔ Luz"],
+                ["Linha 12-Safira", "Calmon Viana ↔ Brás"],
+                ["Linha 13-Jade", "Aeroporto-Guarulhos ↔ Engenheiro Goulart"]
+            ]
+        },
+
+        viamobilidade: {
+            nome: "🚆 ViaMobilidade",
+            linhas: [
+                ["Linha 5-Lilás", "Capão Redondo ↔ Chácara Klabin"],
+                ["Linha 8-Diamante", "Amador Bueno ↔ Júlio Prestes"],
+                ["Linha 9-Esmeralda", "Varginha ↔ Osasco"]
+            ]
+        },
+
+        viaquatro: {
+            nome: "🚆 ViaQuatro",
+            linhas: [
+                ["Linha 4-Amarela", "Vila Sônia ↔ Luz"]
+            ]
+        }
+
+    };
+
+
+    function mostrarLinhas(sistema) {
+
+        const dados = sistemas[sistema];
+
+        const area = document.getElementById("lines");
+        const titulo = document.getElementById("linesTitle");
+        const lista = document.getElementById("linesList");
+
+        titulo.textContent = dados.nome;
+
+        lista.innerHTML = "";
+
+        dados.linhas.forEach(linha => {
+
+            const div = document.createElement("div");
+
+            div.className = "line-card";
+
+            div.innerHTML = `
+                <h3>${linha[0]}</h3>
+                <p>${linha[1]}</p>
+            `;
+
+            div.onclick = function() {
+                pesquisarLinha(linha[0]);
+            };
+
+            lista.appendChild(div);
+
+        });
+
+        area.style.display = "block";
+
+        area.scrollIntoView({
+            behavior: "smooth"
+        });
+    }
+
+
+    function pesquisarLinha(linha) {
+
+        const input = document.getElementById("searchInput");
+
+        input.value = linha;
+
+        pesquisar();
+
+    }
+
+
     function pesquisar() {
-        const texto = document.getElementById("searchInput").value;
-        const resultado = document.getElementById("result");
+
+        const texto =
+            document.getElementById("searchInput").value;
+
+        const resultado =
+            document.getElementById("result");
 
         if (texto.trim() === "") {
+
             resultado.style.display = "block";
-            resultado.innerHTML = "<h3>Digite algo para pesquisar.</h3>";
+
+            resultado.innerHTML =
+                "<h3>Digite algo para pesquisar.</h3>";
+
             return;
         }
 
         resultado.style.display = "block";
+
         resultado.innerHTML = `
             <h2>Pesquisa</h2>
+
             <p>Você pesquisou por:</p>
+
             <h3>${texto}</h3>
+
             <br>
-            <p>A pesquisa na web será adicionada nos próximos passos.</p>
+
+            <p>
+                A pesquisa na web será adicionada
+                nos próximos passos.
+            </p>
         `;
+
+        resultado.scrollIntoView({
+            behavior: "smooth"
+        });
+
     }
+
 </script>
 
 </body>
