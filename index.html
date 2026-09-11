@@ -1,1 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trilhos de São Paulo</title>
 
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f4f7;
+            color: #222;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 35px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 18px;
+            color: #d1d5db;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .search {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .search h2 {
+            margin-bottom: 18px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .search-box button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .search-box button:hover {
+            background: #1d4ed8;
+        }
+
+        .systems {
+            margin-top: 35px;
+        }
+
+        .systems h2 {
+            margin-bottom: 20px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .card h3 {
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            color: #666;
+        }
+
+        .result {
+            margin-top: 25px;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            display: none;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 25px;
+            text-align: center;
+            background: #111827;
+            color: #aaa;
+        }
+
+        @media (max-width: 700px) {
+            header h1 {
+                font-size: 30px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🚆 Trilhos de São Paulo</h1>
+    <p>Explore os trens, metrôs, linhas e estações de São Paulo</p>
+</header>
+
+<div class="container">
+
+    <section class="search">
+        <h2>🔎 Pesquise sobre os trilhos de São Paulo</h2>
+
+        <div class="search-box">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Ex: Linha 4-Amarela, Estação Luz..."
+            >
+
+            <button onclick="pesquisar()">Pesquisar</button>
+        </div>
+    </section>
+
+    <section class="systems">
+        <h2>Sistemas</h2>
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>🚇 Metrô</h3>
+                <p>Conheça as linhas, estações e integrações.</p>
+            </div>
+
+            <div class="card">
+                <h3>🚆 CPTM</h3>
+                <p>Explore as linhas e estações ferroviárias.</p>
+            </div>
+
+            <div class="card">
+                <h3>🚆 ViaMobilidade</h3>
+                <p>Informações sobre as linhas operadas pela empresa.</p>
+            </div>
+
+            <div class="card">
+                <h3>🚆 ViaQuatro</h3>
+                <p>Conheça a Linha 4-Amarela.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <div id="result" class="result"></div>
+
+</div>
+
+<footer>
+    Trilhos de São Paulo — Projeto independente
+</footer>
+
+<script>
+    function pesquisar() {
+        const texto = document.getElementById("searchInput").value;
+        const resultado = document.getElementById("result");
+
+        if (texto.trim() === "") {
+            resultado.style.display = "block";
+            resultado.innerHTML = "<h3>Digite algo para pesquisar.</h3>";
+            return;
+        }
+
+        resultado.style.display = "block";
+        resultado.innerHTML = `
+            <h2>Pesquisa</h2>
+            <p>Você pesquisou por:</p>
+            <h3>${texto}</h3>
+            <br>
+            <p>A pesquisa na web será adicionada nos próximos passos.</p>
+        `;
+    }
+</script>
+
+</body>
+</html>
