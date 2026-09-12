@@ -1062,15 +1062,245 @@ async function pesquisar() {
     const textoPesquisa = document.getElementById("textoPesquisa");
 
     resultado.style.display = "block";
-    textoPesquisa.innerHTML = "🔎 Pesquisando...";
+    textoPesquisa.innerHTML = "🔎 Entendendo sua pergunta...";
 
     resultado.scrollIntoView({
         behavior: "smooth"
     });
 
-    const busca = texto.toLowerCase();
+    function normalizar(texto) {
+        return texto
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+    }
 
-    let encontrados = [];
+    const pergunta = normalizar(texto);
+
+    // Reúne todas as estações
+    const todasEstacoes = [];
+
+    for (const chaveSistema in dados) {
+
+        const sistema = dados[chaveSistema];
+
+        for (const linha of sistema.linhas) {
+
+            for (const estacao of linha.estacoes) {
+
+                todasEstacoes.push({
+                    nome: estacao,
+                    sistema: sistema.nome,
+                    linha: linha.nome,
+                    trajeto: linha.trajeto
+                });
+
+            }
+
+        }
+
+    }
+
+    // Procura quais estações aparecem na pergunta
+    let encontradas = [];
+
+    for (const estacao of todasEstacoes) {
+
+        const nome = normalizar(estacao.nome);
+
+        if (pergunta.includes(nome)) {
+            encontradas.push(estacao);
+        }
+
+    }
+
+    // Remove duplicações
+    encontradas = encontradas.filter(
+        (estacao, indice, lista) =>
+            indice === lista.findIndex(
+                item => normalizar(item.nome) === normalizar(estacao.nome)
+            )
+    );
+
+    // Ordena nomes maiores primeiro
+    // Isso evita confundir nomes parecidos
+    encontradas.sort(
+        (a, b) => b.nome.length - a.nome.length
+    );
+
+    // Se encontrou duas estações, tenta calcular o caminho
+    if (encontradas.length >= 2) {
+
+        const origem = encontradas[0];
+        const destino = encontradas[1];
+
+        // Descobre todas as linhas que passam por cada estação
+        const linhasOrigem = [];
+        const linhasDestino = [];
+
+        for (const chaveSistema in dados) {
+
+            const sistema = dados[chaveSistema];
+
+            for (const linha of sistema.linhas) {
+
+                const estacoesNormalizadas =
+                    linha.estacoes.map(normalizar);
+
+                if (
+                    estacoesNormalizadas.includes(
+                        normalizar(origem.nome)
+                    )
+                ) {
+                    linhasOrigem.push({
+                        sistema: sistema.nome,
+                        linha: linha
+                    });
+                }
+
+                if (
+                    estacoesNormalizadas.includes(
+                        normalizar(destino.nome)
+                    )
+                ) {
+                    linhasDestino.push({
+                        sistema: sistema.nome,
+                        linha: linha
+                    });
+                }
+
+            }
+
+        }
+
+        // Verifica primeiro se existe uma linha direta
+        for (const origemLinha of linhasOrigem) {
+
+            const estacoes =
+                origemLinha.linha.estacoes.map(normalizar);
+
+            if (
+                estacoes.includes(
+                    normalizar(destino.nome)
+                )
+            ) {
+
+                textoPesquisa.innerHTML =
+                    `<strong>🚆 Sim! Existe um trajeto direto.</strong>
+                    <br><br>
+                    <strong>Origem:</strong> ${origem.nome}
+                    <br>
+                    <strong>Destino:</strong> ${destino.nome}
+                    <br><br>
+                    <strong>Linha:</strong> ${origemLinha.linha.nome}
+                    <br>
+                    <strong>Sistema:</strong> ${origemLinha.sistema}
+                    <br><br>
+                    Você pode fazer o trajeto sem trocar de linha.`;
+
+                return;
+            }
+
+        }
+
+        // Procura uma estação de transferência
+        for (const origemLinha of linhasOrigem) {
+
+            const origemEstacoes =
+                origemLinha.linha.estacoes;
+
+            for (const destinoLinha of linhasDestino) {
+
+                const destinoEstacoes =
+                    destinoLinha.linha.estacoes;
+
+                for (const estacaoOrigem of origemEstacoes) {
+
+                    const normalizada =
+                        normalizar(estacaoOrigem);
+
+                    const existeIntegracao =
+                        destinoEstacoes.some(
+                            estacao =>
+                                normalizar(estacao) === normalizada
+                        );
+
+                    if (existeIntegracao) {
+
+                        textoPesquisa.innerHTML =
+                            `<strong>🚆 Sim! Dá para fazer esse trajeto.</strong>
+                            <br><br>
+
+                            <strong>Origem:</strong>
+                            ${origem.nome}
+
+                            <br>
+
+                            <strong>Destino:</strong>
+                            ${destino.nome}
+
+                            <br><br>
+
+                            <strong>1ª linha:</strong>
+                            ${origemLinha.linha.nome}
+
+                            <br>
+                            Sistema:
+                            ${origemLinha.sistema}
+
+                            <br><br>
+
+                            <strong>🔄 Faça a transferência em:</strong>
+                            ${estacaoOrigem}
+
+                            <br><br>
+
+                            <strong>2ª linha:</strong>
+                            ${destinoLinha.linha.nome}
+
+                            <br>
+                            Sistema:
+                            ${destinoLinha.sistema}
+
+                            <br><br>
+
+                            Você precisa trocar de linha
+                            durante o trajeto.`;
+
+                        return;
+                    }
+
+                }
+
+            }
+
+        }
+
+        textoPesquisa.innerHTML =
+            `<strong>🔎 Encontrei as duas estações.</strong>
+            <br><br>
+
+            <strong>Origem:</strong>
+            ${origem.nome}
+
+            <br>
+
+            <strong>Destino:</strong>
+            ${destino.nome}
+
+            <br><br>
+
+            Não encontrei um caminho entre elas nos dados atuais do site.
+            <br><br>
+
+            Podemos adicionar mais integrações e caminhos ao sistema.`;
+
+        return;
+    }
+
+    // Pesquisa normal por estação ou linha
+    let resultados = [];
 
     for (const chaveSistema in dados) {
 
@@ -1079,24 +1309,33 @@ async function pesquisar() {
         for (const linha of sistema.linhas) {
 
             if (
-                linha.nome.toLowerCase().includes(busca) ||
-                linha.trajeto.toLowerCase().includes(busca)
+                normalizar(linha.nome).includes(pergunta) ||
+                normalizar(linha.trajeto).includes(pergunta)
             ) {
-                encontrados.push(
-                    `<strong>${sistema.nome}</strong><br>
-                    ${linha.nome}<br>
+
+                resultados.push(
+                    `<strong>${sistema.nome}</strong>
+                    <br>
+                    ${linha.nome}
+                    <br>
                     Trajeto: ${linha.trajeto}`
                 );
+
             }
 
             for (const estacao of linha.estacoes) {
 
-                if (estacao.toLowerCase().includes(busca)) {
+                if (
+                    normalizar(estacao).includes(pergunta)
+                ) {
 
-                    encontrados.push(
-                        `<strong>${estacao}</strong><br>
-                        Sistema: ${sistema.nome}<br>
-                        Linha: ${linha.nome}<br>
+                    resultados.push(
+                        `<strong>${estacao}</strong>
+                        <br>
+                        Sistema: ${sistema.nome}
+                        <br>
+                        Linha: ${linha.nome}
+                        <br>
                         Trajeto: ${linha.trajeto}`
                     );
 
@@ -1108,22 +1347,28 @@ async function pesquisar() {
 
     }
 
-    if (encontrados.length === 0) {
+    if (resultados.length === 0) {
 
         textoPesquisa.innerHTML =
-            `Nenhum resultado encontrado para:
-            <strong>${texto}</strong><br><br>
-            Tente pesquisar pelo nome de uma linha ou estação.`;
+            `<strong>Não encontrei essa informação.</strong>
+            <br><br>
+            Tente escrever, por exemplo:
+            <br><br>
+            “Estou na Luz, dá para ir até Estudantes?”
+            <br>
+            “Quais linhas passam pela Luz?”
+            <br>
+            “Como chegar à Sé?”`;
 
         return;
     }
 
     textoPesquisa.innerHTML =
-        `<strong>Resultados encontrados:</strong><br><br>` +
-        encontrados.join("<br><hr><br>");
+        `<strong>🔎 Encontrei:</strong>
+        <br><br>` +
+        resultados.join("<br><hr><br>");
 
 }
-
 
 </script>
 
