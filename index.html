@@ -1068,33 +1068,61 @@ async function pesquisar() {
         behavior: "smooth"
     });
 
-    try {
+    const busca = texto.toLowerCase();
 
-        const resposta = await fetch(
-            "/api/search?q=" + encodeURIComponent(texto)
-        );
+    let encontrados = [];
 
-        const dados = await resposta.json();
+    for (const chaveSistema in dados) {
 
-        if (!resposta.ok) {
-            throw new Error(
-                dados.error || "Erro na pesquisa."
-            );
+        const sistema = dados[chaveSistema];
+
+        for (const linha of sistema.linhas) {
+
+            if (
+                linha.nome.toLowerCase().includes(busca) ||
+                linha.trajeto.toLowerCase().includes(busca)
+            ) {
+                encontrados.push(
+                    `<strong>${sistema.nome}</strong><br>
+                    ${linha.nome}<br>
+                    Trajeto: ${linha.trajeto}`
+                );
+            }
+
+            for (const estacao of linha.estacoes) {
+
+                if (estacao.toLowerCase().includes(busca)) {
+
+                    encontrados.push(
+                        `<strong>${estacao}</strong><br>
+                        Sistema: ${sistema.nome}<br>
+                        Linha: ${linha.nome}<br>
+                        Trajeto: ${linha.trajeto}`
+                    );
+
+                }
+
+            }
+
         }
 
-        textoPesquisa.innerHTML =
-            "<strong>Resultado da pesquisa:</strong><br><br>" +
-            dados.resposta;
-
-    } catch (erro) {
-
-        textoPesquisa.innerHTML =
-            "❌ Não foi possível realizar a pesquisa agora.<br><br>" +
-            erro.message;
-
     }
-}
 
+    if (encontrados.length === 0) {
+
+        textoPesquisa.innerHTML =
+            `Nenhum resultado encontrado para:
+            <strong>${texto}</strong><br><br>
+            Tente pesquisar pelo nome de uma linha ou estação.`;
+
+        return;
+    }
+
+    textoPesquisa.innerHTML =
+        `<strong>Resultados encontrados:</strong><br><br>` +
+        encontrados.join("<br><hr><br>");
+
+}
 
 
 </script>
