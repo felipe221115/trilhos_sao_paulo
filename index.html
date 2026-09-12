@@ -1049,20 +1049,51 @@ behavior: "smooth"
    PESQUISA
 ========================= */
 
-function pesquisar() {
+async function pesquisar() {
 
-const texto =
-document.getElementById("pesquisa").value.trim();
+    const texto = document.getElementById("pesquisa").value.trim();
 
+    if (texto === "") {
+        alert("Digite alguma coisa para pesquisar.");
+        return;
+    }
 
-if (texto === "") {
+    const resultado = document.getElementById("resultado");
+    const textoPesquisa = document.getElementById("textoPesquisa");
 
-alert("Digite alguma coisa para pesquisar.");
+    resultado.style.display = "block";
+    textoPesquisa.innerHTML = "🔎 Pesquisando...";
 
-return;
+    resultado.scrollIntoView({
+        behavior: "smooth"
+    });
 
+    try {
+
+        const resposta = await fetch(
+            "/api/search?q=" + encodeURIComponent(texto)
+        );
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.error || "Erro na pesquisa."
+            );
+        }
+
+        textoPesquisa.innerHTML =
+            "<strong>Resultado da pesquisa:</strong><br><br>" +
+            dados.resposta;
+
+    } catch (erro) {
+
+        textoPesquisa.innerHTML =
+            "❌ Não foi possível realizar a pesquisa agora.<br><br>" +
+            erro.message;
+
+    }
 }
-
 
 const resultado =
 document.getElementById("resultado");
