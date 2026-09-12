@@ -1062,7 +1062,7 @@ async function pesquisar() {
     const textoPesquisa = document.getElementById("textoPesquisa");
 
     resultado.style.display = "block";
-    textoPesquisa.innerHTML = "🔎 Entendendo sua pergunta...";
+    textoPesquisa.innerHTML = "🔎 Analisando sua pergunta...";
 
     resultado.scrollIntoView({
         behavior: "smooth"
@@ -1070,16 +1070,17 @@ async function pesquisar() {
 
 
     // ==========================================
-    // NORMALIZAR
+    // NORMALIZAR TEXTO
     // ==========================================
 
-    function normalizar(texto) {
+    function normalizar(valor) {
 
-        return texto
+        return valor
+            .toString()
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
-            .replace(/[?!.,;]/g, "")
+            .replace(/[?!.,;:]/g, " ")
             .replace(/\s+/g, " ")
             .trim();
 
@@ -1090,7 +1091,7 @@ async function pesquisar() {
 
 
     // ==========================================
-    // TODAS AS LINHAS
+    // REUNIR TODAS AS LINHAS
     // ==========================================
 
     const linhas = [];
@@ -1107,6 +1108,8 @@ async function pesquisar() {
 
                 sistema: sistema.nome,
 
+                trajeto: linha.trajeto,
+
                 estacoes: linha.estacoes
 
             });
@@ -1117,7 +1120,7 @@ async function pesquisar() {
 
 
     // ==========================================
-    // TODAS AS ESTAÇÕES
+    // REUNIR ESTAÇÕES ÚNICAS
     // ==========================================
 
     const todasEstacoes = [];
@@ -1126,13 +1129,13 @@ async function pesquisar() {
 
         for (const estacao of linha.estacoes) {
 
-            if (
-                !todasEstacoes.some(
-                    item =>
-                        normalizar(item) ===
-                        normalizar(estacao)
-                )
-            ) {
+            const jaExiste = todasEstacoes.some(
+                item =>
+                    normalizar(item) ===
+                    normalizar(estacao)
+            );
+
+            if (!jaExiste) {
 
                 todasEstacoes.push(estacao);
 
@@ -1144,226 +1147,23 @@ async function pesquisar() {
 
 
     // ==========================================
-    // ENCONTRAR ESTAÇÕES NA PERGUNTA
+    // ENCONTRAR ESTAÇÕES CITADAS
     // ==========================================
 
-    const encontradas = [];
+    const estacoesEncontradas = [];
 
     for (const estacao of todasEstacoes) {
 
         const nome = normalizar(estacao);
+
+        const posicao = pergunta.indexOf(nome);
 
         if (
             nome.length >= 2 &&
-            pergunta.includes(nome)
+            posicao !== -1
         ) {
 
-            encontradas.push(estacao);
-
-        }
-
-    }
-
-
-    // ==========================================
-// IDENTIFICAR ORIGEM E DESTINO
-// ==========================================
-
-let origem = null;
-let destino = null;
-
-
-// ==========================================
-// FUNÇÃO PARA ENCONTRAR ESTAÇÃO PELO TEXTO
-// ==========================================
-
-function encontrarEstacaoNoTrecho(trecho, listaExcluida = []) {
-
-    const candidatos = [];
-
-    for (const estacao of todasEstacoes) {
-
-        const nome = normalizar(estacao);
-
-        if (
-            nome.length >= 2 &&
-            normalizar(trecho).includes(nome) &&
-            !listaExcluida.some(
-                item =>
-                    normalizar(item) === nome
-            )
-        ) {
-
-            candidatos.push(estacao);
-
-        }
-
-    }
-
-    // Nomes maiores primeiro
-    candidatos.sort(
-        (a, b) =>
-            normalizar(b).length -
-            normalizar(a).length
-    );
-
-    return candidatos[0] || null;
-
-}
-
-
-// ==========================================
-// PADRÃO: "ESTOU NA X ATÉ Y"
-// ==========================================
-
-let encontrado = texto.match(
-    /(?:estou\s+(?:na|em)|estou\s+em|saindo\s+d[ae]|partindo\s+d[ae])\s+(.+?)\s+(?:até|ate|para)\s+(.+)/i
-);
-
-
-if (encontrado) {
-
-    origem = encontrarEstacaoNoTrecho(
-        encontrado[1]
-    );
-
-    destino = encontrarEstacaoNoTrecho(
-        encontrado[2],
-        origem ? [origem] : []
-    );
-
-}
-
-
-// ==========================================
-// PADRÃO: "DE X ATÉ Y"
-// ==========================================
-
-if (!origem || !destino) {
-
-    encontrado = texto.match(
-        /\bde\s+(.+?)\s+(?:até|ate)\s+(.+)/i
-    );
-
-
-    if (encontrado) {
-
-        origem = encontrarEstacaoNoTrecho(
-            encontrado[1]
-        );
-
-        destino = encontrarEstacaoNoTrecho(
-            encontrado[2],
-            origem ? [origem] : []
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// PADRÃO: "DE X PARA Y"
-// ==========================================
-
-if (!origem || !destino) {
-
-    encontrado = texto.match(
-        /\bde\s+(.+?)\s+para\s+(.+)/i
-    );
-
-
-    if (encontrado) {
-
-        origem = encontrarEstacaoNoTrecho(
-            encontrado[1]
-        );
-
-        destino = encontrarEstacaoNoTrecho(
-            encontrado[2],
-            origem ? [origem] : []
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// PADRÃO: "X ATÉ Y"
-// ==========================================
-
-if (!origem || !destino) {
-
-    encontrado = texto.match(
-        /(.+?)\s+(?:até|ate)\s+(.+)/i
-    );
-
-
-    if (encontrado) {
-
-        origem = encontrarEstacaoNoTrecho(
-            encontrado[1]
-        );
-
-        destino = encontrarEstacaoNoTrecho(
-            encontrado[2],
-            origem ? [origem] : []
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// PADRÃO: "X PARA Y"
-// ==========================================
-
-if (!origem || !destino) {
-
-    encontrado = texto.match(
-        /(.+?)\s+para\s+(.+)/i
-    );
-
-
-    if (encontrado) {
-
-        origem = encontrarEstacaoNoTrecho(
-            encontrado[1]
-        );
-
-        destino = encontrarEstacaoNoTrecho(
-            encontrado[2],
-            origem ? [origem] : []
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// SEGURANÇA: ENCONTRAR ESTAÇÕES NA PERGUNTA
-// ==========================================
-
-if (!origem || !destino) {
-
-    const encontradasNaPergunta = [];
-
-    for (const estacao of todasEstacoes) {
-
-        const nome = normalizar(estacao);
-
-        const posicao =
-            pergunta.indexOf(nome);
-
-        if (
-            posicao !== -1 &&
-            nome.length >= 2
-        ) {
-
-            encontradasNaPergunta.push({
+            estacoesEncontradas.push({
 
                 nome: estacao,
 
@@ -1378,87 +1178,279 @@ if (!origem || !destino) {
     }
 
 
-    // Ordena pela posição na FRASE,
-    // não pelo tamanho do nome
-    encontradasNaPergunta.sort(
+    // ==========================================
+    // ORDENAR PELA POSIÇÃO NA FRASE
+    // ==========================================
+
+    estacoesEncontradas.sort(
         (a, b) =>
             a.posicao - b.posicao
     );
 
 
-    if (!origem && encontradasNaPergunta.length >= 1) {
+    // ==========================================
+    // ESTAÇÕES ÚNICAS
+    // ==========================================
 
-        origem =
-            encontradasNaPergunta[0].nome;
+    const estacoesUnicas = [];
+
+    for (const item of estacoesEncontradas) {
+
+        if (
+            !estacoesUnicas.some(
+                outra =>
+                    normalizar(outra.nome) ===
+                    normalizar(item.nome)
+            )
+        ) {
+
+            estacoesUnicas.push(item);
+
+        }
 
     }
 
 
-    if (!destino && encontradasNaPergunta.length >= 2) {
+    // ==========================================
+    // DESCOBRIR ORIGEM E DESTINO
+    // ==========================================
 
-        destino =
-            encontradasNaPergunta.find(
+    let origem = null;
+    let destino = null;
+
+
+    // ------------------------------------------
+    // PADRÃO: DE X ATÉ Y
+    // ------------------------------------------
+
+    let partes = texto.match(
+        /de\s+(.+?)\s+(?:até|ate)\s+(.+)/i
+    );
+
+
+    if (partes) {
+
+        const trechoOrigem =
+            normalizar(partes[1]);
+
+        const trechoDestino =
+            normalizar(partes[2]);
+
+
+        origem = estacoesUnicas.find(
+            item =>
+                trechoOrigem.includes(
+                    normalizar(item.nome)
+                )
+        )?.nome || null;
+
+
+        destino = estacoesUnicas.find(
+            item =>
+                trechoDestino.includes(
+                    normalizar(item.nome)
+                )
+        )?.nome || null;
+
+    }
+
+
+    // ------------------------------------------
+    // PADRÃO: DE X PARA Y
+    // ------------------------------------------
+
+    if (!origem || !destino) {
+
+        partes = texto.match(
+            /de\s+(.+?)\s+para\s+(.+)/i
+        );
+
+
+        if (partes) {
+
+            const trechoOrigem =
+                normalizar(partes[1]);
+
+            const trechoDestino =
+                normalizar(partes[2]);
+
+
+            origem = estacoesUnicas.find(
                 item =>
-                    normalizar(item.nome) !==
-                    normalizar(origem || "")
+                    trechoOrigem.includes(
+                        normalizar(item.nome)
+                    )
             )?.nome || null;
 
+
+            destino = estacoesUnicas.find(
+                item =>
+                    trechoDestino.includes(
+                        normalizar(item.nome)
+                    )
+            )?.nome || null;
+
+        }
+
     }
 
-}
+
+    // ------------------------------------------
+    // PADRÃO: ESTOU NA X ... ATÉ Y
+    // ------------------------------------------
+
+    if (!origem || !destino) {
+
+        partes = texto.match(
+            /(?:estou\s+(?:na|em)|saindo\s+d[ae]|partindo\s+d[ae])\s+(.+?)\s+(?:até|ate|para)\s+(.+)/i
+        );
 
 
-// ==========================================
-// NÃO DEIXAR ORIGEM E DESTINO IGUAIS
-// ==========================================
+        if (partes) {
 
-if (
-    origem &&
-    destino &&
-    normalizar(origem) ===
-    normalizar(destino)
-) {
+            const trechoOrigem =
+                normalizar(partes[1]);
 
-    destino = null;
-
-}
+            const trechoDestino =
+                normalizar(partes[2]);
 
 
-// ==========================================
-// MOSTRAR ERRO SE NÃO ENCONTROU DUAS
-// ==========================================
+            origem = estacoesUnicas.find(
+                item =>
+                    trechoOrigem.includes(
+                        normalizar(item.nome)
+                    )
+            )?.nome || null;
 
-if (!origem || !destino) {
 
-    textoPesquisa.innerHTML = `
+            destino = estacoesUnicas.find(
+                item =>
+                    trechoDestino.includes(
+                        normalizar(item.nome)
+                    )
+            )?.nome || null;
 
-        <strong>🔎 Não consegui entender a rota.</strong>
+        }
 
-        <br><br>
+    }
 
-        Tente escrever assim:
 
-        <br><br>
+    // ------------------------------------------
+    // PADRÃO: X ATÉ Y
+    // ------------------------------------------
 
-        “Estou na Luz, dá para ir até Estudantes?”
+    if (!origem || !destino) {
 
-        <br>
+        partes = texto.match(
+            /(.+?)\s+(?:até|ate)\s+(.+)/i
+        );
 
-        “Estou em Estudantes, quero ir para Luz.”
 
-        <br>
+        if (partes) {
 
-        “De Sé até Pinheiros.”
+            const trechoOrigem =
+                normalizar(partes[1]);
 
-        <br>
+            const trechoDestino =
+                normalizar(partes[2]);
 
-        “Saindo de Santo André para Luz.”
 
-    `;
+            origem = estacoesUnicas.find(
+                item =>
+                    trechoOrigem.includes(
+                        normalizar(item.nome)
+                    )
+            )?.nome || null;
 
-    return;
 
-}
+            destino = estacoesUnicas.find(
+                item =>
+                    trechoDestino.includes(
+                        normalizar(item.nome)
+                    )
+            )?.nome || null;
+
+        }
+
+    }
+
+
+    // ==========================================
+    // SEGURANÇA:
+    // SE HOUVER DUAS ESTAÇÕES E A PERGUNTA
+    // FOR DE ROTA, USA A ORDEM DA FRASE
+    // ==========================================
+
+    const palavrasDeRota = [
+
+        "ir",
+
+        "chegar",
+
+        "vou",
+
+        "quero",
+
+        "como chegar",
+
+        "como ir",
+
+        "trajeto",
+
+        "rota",
+
+        "saindo",
+
+        "partindo",
+
+        "estou na",
+
+        "estou em",
+
+        "até",
+
+        "ate",
+
+        "para"
+
+    ];
+
+
+    const ehPerguntaDeRota =
+        palavrasDeRota.some(
+            palavra =>
+                pergunta.includes(
+                    normalizar(palavra)
+                )
+        );
+
+
+    if (
+        ehPerguntaDeRota &&
+        estacoesUnicas.length >= 2
+    ) {
+
+        if (!origem) {
+
+            origem =
+                estacoesUnicas[0].nome;
+
+        }
+
+
+        if (!destino) {
+
+            destino =
+                estacoesUnicas.find(
+                    item =>
+                        normalizar(item.nome) !==
+                        normalizar(origem)
+                )?.nome || null;
+
+        }
+
+    }
+
 
     // ==========================================
     // CALCULAR ROTA
@@ -1609,7 +1601,7 @@ if (!origem || !destino) {
 
                     <br>
 
-                    <strong>🔄 Baldeações:</strong>
+                    <strong>🔄 Número de baldeações:</strong>
                     0
 
                 `;
@@ -1778,9 +1770,7 @@ if (!origem || !destino) {
 
                     let html = `
 
-                        <strong>
-                            🚆 Rota encontrada!
-                        </strong>
+                        <strong>🚆 Rota encontrada!</strong>
 
                         <br><br>
 
@@ -1804,10 +1794,7 @@ if (!origem || !destino) {
 
                         <br><br>
 
-                        <strong>
-                            🔄 Baldeação:
-                        </strong>
-
+                        <strong>🔄 Baldeação:</strong>
                         ${transferencia}
 
                         <br><br>
@@ -1830,9 +1817,7 @@ if (!origem || !destino) {
 
                         <br><br>
 
-                        <strong>
-                            🗺️ Estações:
-                        </strong>
+                        <strong>🗺️ Estações:</strong>
 
                         <br><br>
 
@@ -1863,15 +1848,9 @@ if (!origem || !destino) {
         }
 
 
-        // ======================================
-        // SEM ROTA
-        // ======================================
-
         textoPesquisa.innerHTML = `
 
-            <strong>
-                🔎 Encontrei as estações!
-            </strong>
+            <strong>🔎 Encontrei as duas estações.</strong>
 
             <br><br>
 
@@ -1885,9 +1864,8 @@ if (!origem || !destino) {
 
             <br><br>
 
-            Ainda não encontrei uma rota
-            entre essas estações nos dados
-            cadastrados no site.
+            Não encontrei uma rota cadastrada
+            entre elas.
 
         `;
 
@@ -1897,21 +1875,258 @@ if (!origem || !destino) {
 
 
     // ==========================================
-    // PESQUISA NORMAL
+    // PESQUISA DE LINHA
     // ==========================================
+
+    const linhasEncontradas = linhas.filter(
+        linha => {
+
+            const nome =
+                normalizar(linha.nome);
+
+            const trajeto =
+                normalizar(linha.trajeto);
+
+            return (
+                pergunta.includes(nome) ||
+                nome.includes(pergunta) ||
+                pergunta.includes(trajeto)
+            );
+
+        }
+    );
+
+
+    // ==========================================
+    // PESQUISA DE ESTAÇÃO
+    // ==========================================
+
+    const estacoesParaMostrar = [];
+
+
+    for (const estacao of todasEstacoes) {
+
+        const nome =
+            normalizar(estacao);
+
+
+        if (
+            pergunta.includes(nome) ||
+            nome.includes(pergunta)
+        ) {
+
+            estacoesParaMostrar.push(estacao);
+
+        }
+
+    }
+
+
+    // ==========================================
+    // PERGUNTA SOBRE ESTAÇÃO
+    // ==========================================
+
+    if (
+        estacoesParaMostrar.length > 0
+    ) {
+
+        const estacao =
+            estacoesParaMostrar[0];
+
+
+        const linhasDaEstacao =
+            linhas.filter(
+                linha =>
+                    linha.estacoes.some(
+                        item =>
+                            normalizar(item) ===
+                            normalizar(estacao)
+                    )
+            );
+
+
+        const perguntaSobreLinhas =
+            pergunta.includes("linha") ||
+            pergunta.includes("linhas") ||
+            pergunta.includes("passa") ||
+            pergunta.includes("passam") ||
+            pergunta.includes("quais");
+
+
+        if (perguntaSobreLinhas) {
+
+            let html = `
+
+                <strong>📍 ${estacao}</strong>
+
+                <br><br>
+
+                <strong>🚇 Linhas que passam por esta estação:</strong>
+
+                <br><br>
+
+            `;
+
+
+            linhasDaEstacao.forEach(
+                (linha, indice) => {
+
+                    html += `
+
+                        ${indice + 1}.
+                        <strong>${linha.nome}</strong>
+
+                        <br>
+
+                        Sistema:
+                        ${linha.sistema}
+
+                        <br><br>
+
+                    `;
+
+                }
+            );
+
+
+            textoPesquisa.innerHTML = html;
+
+            return;
+
+        }
+
+
+        // ======================================
+        // INFORMAÇÕES DA ESTAÇÃO
+        // ======================================
+
+        let html = `
+
+            <strong>📍 ${estacao}</strong>
+
+            <br><br>
+
+            <strong>Linhas que passam por ela:</strong>
+
+            <br><br>
+
+        `;
+
+
+        linhasDaEstacao.forEach(
+            (linha, indice) => {
+
+                html += `
+
+                    ${indice + 1}.
+                    ${linha.nome}
+
+                    <br>
+
+                    Sistema:
+                    ${linha.sistema}
+
+                    <br><br>
+
+                `;
+
+            }
+        );
+
+
+        textoPesquisa.innerHTML = html;
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // MOSTRAR LINHAS ENCONTRADAS
+    // ==========================================
+
+    if (
+        linhasEncontradas.length > 0
+    ) {
+
+        let html = `
+
+            <strong>🚇 Encontrei estas linhas:</strong>
+
+            <br><br>
+
+        `;
+
+
+        linhasEncontradas.forEach(
+            (linha, indice) => {
+
+                html += `
+
+                    <strong>
+                        ${indice + 1}.
+                        ${linha.nome}
+                    </strong>
+
+                    <br>
+
+                    Sistema:
+                    ${linha.sistema}
+
+                    <br>
+
+                    Trajeto:
+                    ${linha.trajeto}
+
+                    <br><br>
+
+                `;
+
+            }
+        );
+
+
+        textoPesquisa.innerHTML = html;
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // BUSCA POR PALAVRAS IMPORTANTES
+    // ==========================================
+
+    const palavras =
+        pergunta
+            .split(" ")
+            .filter(
+                palavra =>
+                    palavra.length >= 3
+            );
+
 
     const resultados = [];
 
 
     for (const linha of linhas) {
 
-        if (
-            normalizar(linha.nome)
-                .includes(pergunta) ||
+        const textoLinha =
+            normalizar(
+                linha.nome +
+                " " +
+                linha.trajeto
+            );
 
-            normalizar(linha.trajeto || "")
-                .includes(pergunta)
-        ) {
+
+        const corresponde =
+            palavras.some(
+                palavra =>
+                    textoLinha.includes(palavra)
+            );
+
+
+        if (corresponde) {
 
             resultados.push(`
 
@@ -1932,82 +2147,23 @@ if (!origem || !destino) {
 
         }
 
-
-        for (const estacao of linha.estacoes) {
-
-            if (
-                normalizar(estacao)
-                    .includes(pergunta)
-            ) {
-
-                resultados.push(`
-
-                    <strong>
-                        📍 ${estacao}
-                    </strong>
-
-                    <br>
-
-                    Sistema:
-                    ${linha.sistema}
-
-                    <br>
-
-                    Linha:
-                    ${linha.nome}
-
-                    <br>
-
-                    Trajeto:
-                    ${linha.trajeto}
-
-                `);
-
-            }
-
-        }
-
     }
 
 
     // ==========================================
-    // NENHUM RESULTADO
+    // RESULTADOS
     // ==========================================
 
-    if (resultados.length === 0) {
+    if (resultados.length > 0) {
 
-        textoPesquisa.innerHTML = `
+        textoPesquisa.innerHTML =
 
-            <strong>
-                ❌ Não encontrei essa informação.
-            </strong>
+            `<strong>🔎 Encontrei:</strong>
+            <br><br>` +
 
-            <br><br>
-
-            Tente pesquisar por uma estação,
-            linha ou trajeto.
-
-            <br><br>
-
-            Exemplos:
-
-            <br><br>
-
-            “Estou na Luz, dá para ir até Estudantes?”
-
-            <br>
-
-            “Como chegar na Sé?”
-
-            <br>
-
-            “Saindo de Santo André até Luz”
-
-            <br>
-
-            “Linha 11-Coral”
-
-        `;
+            resultados.join(
+                "<br><hr><br>"
+            );
 
         return;
 
@@ -2015,20 +2171,43 @@ if (!origem || !destino) {
 
 
     // ==========================================
-    // MOSTRAR RESULTADOS
+    // NADA ENCONTRADO
     // ==========================================
 
-    textoPesquisa.innerHTML =
+    textoPesquisa.innerHTML = `
 
-        `<strong>🔎 Encontrei:</strong>
-        <br><br>` +
+        <strong>
+            ❌ Não consegui encontrar essa informação.
+        </strong>
 
-        resultados.join(
-            "<br><hr><br>"
-        );
+        <br><br>
+
+        Você pode perguntar, por exemplo:
+
+        <br><br>
+
+        “Estou na Luz, dá para ir até Estudantes?”
+
+        <br>
+
+        “Estou em Estudantes, quero ir para Luz.”
+
+        <br>
+
+        “Quais linhas passam pela Luz?”
+
+        <br>
+
+        “Como chegar na Sé?”
+
+        <br>
+
+        “Linha 11-Coral”
+
+    `;
 
 }
-
+    
 </script>
 
 
