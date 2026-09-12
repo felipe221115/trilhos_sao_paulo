@@ -1,0 +1,219 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f4f7;
+    color: #222;
+}
+
+header {
+    background: #111827;
+    color: white;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+header h1 {
+    margin: 0 0 10px;
+    font-size: 40px;
+}
+
+header p {
+    margin: 0;
+    color: #d1d5db;
+    font-size: 18px;
+}
+
+.container {
+    max-width: 1050px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+
+/* PESQUISA */
+
+.search {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.search h2 {
+    margin-top: 0;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 9px;
+    font-size: 16px;
+}
+
+.search-box button {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 9px;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+
+/* SISTEMAS */
+
+.sistemas {
+    margin-top: 35px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.sistema {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.sistema:hover {
+    transform: translateY(-4px);
+}
+
+
+/* LINHAS */
+
+.linhas {
+    display: none;
+    margin-top: 35px;
+}
+
+.linha {
+    background: white;
+    padding: 20px;
+    margin: 12px 0;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+    cursor: pointer;
+}
+
+.linha:hover {
+    background: #eef3ff;
+}
+
+
+/* ESTAÇÕES */
+
+.estacoes {
+    display: none;
+    margin-top: 30px;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.estacao {
+    background: #f1f3f6;
+    padding: 14px;
+    margin: 8px 0;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.estacao:hover {
+    background: #dfe7f7;
+    transform: translateX(4px);
+}
+
+
+/* FICHA DA ESTAÇÃO */
+
+.ficha {
+    display: none;
+    margin-top: 30px;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.ficha h2 {
+    margin-top: 0;
+}
+
+.info {
+    background: #f3f4f6;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+}
+
+.voltar {
+    margin-top: 20px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #374151;
+    color: white;
+    cursor: pointer;
+}
+
+
+/* RESULTADO */
+
+.resultado {
+    display: none;
+    margin-top: 25px;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+}
+
+
+/* RODAPÉ */
+
+footer {
+    margin-top: 50px;
+    padding: 25px;
+    background: #111827;
+    color: #aaa;
+    text-align: center;
+}
+
+
+/* CELULAR */
+
+@media (max-width: 700px) {
+
+    header h1 {
+        font-size: 30px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .search-box {
+        flex-direction: column;
+    }
+
+}
