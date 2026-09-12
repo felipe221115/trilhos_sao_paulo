@@ -2,211 +2,234 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Trilhos de São Paulo</title>
+<title>Trilhos de São Paulo</title>
 
-    <style>
+<style>
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f2f4f7;
-            color: #222;
-        }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f4f7;
+    color: #222;
+}
 
-        header {
-            background: #111827;
-            color: white;
-            padding: 40px 20px;
-            text-align: center;
-        }
+header {
+    background: #111827;
+    color: white;
+    text-align: center;
+    padding: 40px 20px;
+}
 
-        header h1 {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
+header h1 {
+    margin: 0 0 10px;
+    font-size: 40px;
+}
 
-        header p {
-            font-size: 18px;
-            color: #d1d5db;
-        }
+header p {
+    margin: 0;
+    color: #d1d5db;
+    font-size: 18px;
+}
 
-        .container {
-            max-width: 1100px;
-            margin: 35px auto;
-            padding: 0 20px;
-        }
+.container {
+    max-width: 1050px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
 
-        .search {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            text-align: center;
-        }
 
-        .search h2 {
-            margin-bottom: 18px;
-        }
+/* PESQUISA */
 
-        .search-box {
-            display: flex;
-            gap: 10px;
-        }
+.search {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
 
-        .search-box input {
-            flex: 1;
-            padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            font-size: 16px;
-        }
+.search h2 {
+    margin-top: 0;
+}
 
-        .search-box button {
-            padding: 15px 25px;
-            border: none;
-            border-radius: 10px;
-            background: #2563eb;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
+.search-box {
+    display: flex;
+    gap: 10px;
+}
 
-        .search-box button:hover {
-            background: #1d4ed8;
-        }
+.search-box input {
+    flex: 1;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 9px;
+    font-size: 16px;
+}
 
-        .systems {
-            margin-top: 35px;
-        }
+.search-box button {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 9px;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
 
-        .systems h2 {
-            margin-bottom: 20px;
-        }
 
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
+/* SISTEMAS */
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            cursor: pointer;
-            transition: 0.2s;
-        }
+.sistemas {
+    margin-top: 35px;
+}
 
-        .card:hover {
-            transform: translateY(-4px);
-        }
+.cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
 
-        .card h3 {
-            margin-bottom: 8px;
-        }
+.sistema {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: 0.2s;
+}
 
-        .card p {
-            color: #666;
-        }
+.sistema:hover {
+    transform: translateY(-4px);
+}
 
-        .lines {
-            margin-top: 35px;
-            display: none;
-        }
 
-        .lines h2 {
-            margin-bottom: 20px;
-        }
+/* LINHAS */
 
-        .line-card {
-            background: white;
-            padding: 20px;
-            margin-bottom: 12px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-            cursor: pointer;
-            transition: 0.2s;
-        }
+.linhas {
+    display: none;
+    margin-top: 35px;
+}
 
-        .line-card:hover {
-            transform: translateX(4px);
-            background: #f8fafc;
-        }
+.linha {
+    background: white;
+    padding: 20px;
+    margin: 12px 0;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+    cursor: pointer;
+}
 
-        .line-card h3 {
-            margin-bottom: 7px;
-        }
+.linha:hover {
+    background: #eef3ff;
+}
 
-        .line-card p {
-            color: #666;
-        }
 
-        .stations {
-            margin-top: 25px;
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            display: none;
-        }
+/* ESTAÇÕES */
 
-        .stations h2 {
-            margin-bottom: 20px;
-        }
+.estacoes {
+    display: none;
+    margin-top: 30px;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
 
-        .station {
-            padding: 13px;
-            margin-bottom: 8px;
-            background: #f3f4f6;
-            border-radius: 8px;
-        }
+.estacao {
+    background: #f1f3f6;
+    padding: 14px;
+    margin: 8px 0;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: 0.2s;
+}
 
-        .station:hover {
-            background: #e5e7eb;
-        }
+.estacao:hover {
+    background: #dfe7f7;
+    transform: translateX(4px);
+}
 
-        .result {
-            margin-top: 25px;
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            display: none;
-        }
 
-        footer {
-            margin-top: 50px;
-            padding: 25px;
-            text-align: center;
-            background: #111827;
-            color: #aaa;
-        }
+/* FICHA DA ESTAÇÃO */
 
-        @media (max-width: 700px) {
+.ficha {
+    display: none;
+    margin-top: 30px;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
 
-            header h1 {
-                font-size: 30px;
-            }
+.ficha h2 {
+    margin-top: 0;
+}
 
-            .cards {
-                grid-template-columns: 1fr;
-            }
+.info {
+    background: #f3f4f6;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+}
 
-            .search-box {
-                flex-direction: column;
-            }
+.voltar {
+    margin-top: 20px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #374151;
+    color: white;
+    cursor: pointer;
+}
 
-        }
 
-    </style>
+/* RESULTADO */
+
+.resultado {
+    display: none;
+    margin-top: 25px;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+}
+
+
+/* RODAPÉ */
+
+footer {
+    margin-top: 50px;
+    padding: 25px;
+    background: #111827;
+    color: #aaa;
+    text-align: center;
+}
+
+
+/* CELULAR */
+
+@media (max-width: 700px) {
+
+    header h1 {
+        font-size: 30px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .search-box {
+        flex-direction: column;
+    }
+
+}
+
+</style>
 
 </head>
 
@@ -216,11 +239,11 @@
 
 <header>
 
-    <h1>🚆 Trilhos de São Paulo</h1>
+<h1>🚆 Trilhos de São Paulo</h1>
 
-    <p>
-        Explore os trens, metrôs, linhas e estações de São Paulo
-    </p>
+<p>
+Explore os trens, linhas e estações de São Paulo
+</p>
 
 </header>
 
@@ -228,116 +251,178 @@
 <div class="container">
 
 
-    <!-- PESQUISA -->
+<!-- PESQUISA -->
 
-    <section class="search">
+<section class="search">
 
-        <h2>🔎 Pesquise sobre os trilhos de São Paulo</h2>
+<h2>🔎 Pesquise sobre os trilhos de São Paulo</h2>
 
-        <div class="search-box">
+<div class="search-box">
 
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Ex: Linha 4-Amarela, Estação Luz..."
-            >
+<input
+id="pesquisa"
+type="text"
+placeholder="Ex: Linha 4-Amarela, Estação Luz..."
+>
 
-            <button onclick="pesquisar()">
-                Pesquisar
-            </button>
+<button onclick="pesquisar()">
+Pesquisar
+</button>
 
-        </div>
+</div>
 
-    </section>
-
-
-    <!-- SISTEMAS -->
-
-    <section class="systems">
-
-        <h2>Sistemas</h2>
-
-        <div class="cards">
+</section>
 
 
-            <div class="card"
-                 onclick="mostrarLinhas('metro')">
+<!-- SISTEMAS -->
 
-                <h3>🚇 Metrô</h3>
+<section class="sistemas">
 
-                <p>
-                    Linhas 1, 2, 3, 15 e 17.
-                </p>
+<h2>Sistemas</h2>
 
-            </div>
+<div class="cards">
 
 
-            <div class="card"
-                 onclick="mostrarLinhas('cptm')">
+<div
+class="sistema"
+onclick="mostrarSistema('metro')"
+>
 
-                <h3>🚆 CPTM</h3>
+<h3>🚇 Metrô</h3>
 
-                <p>
-                    Linhas 7, 10, 11, 12 e 13.
-                </p>
+<p>
+Linhas do Metrô de São Paulo
+</p>
 
-            </div>
-
-
-            <div class="card"
-                 onclick="mostrarLinhas('viamobilidade')">
-
-                <h3>🚆 ViaMobilidade</h3>
-
-                <p>
-                    Linhas 8-Diamante e 9-Esmeralda.
-                </p>
-
-            </div>
+</div>
 
 
-            <div class="card"
-                 onclick="mostrarLinhas('motiva')">
+<div
+class="sistema"
+onclick="mostrarSistema('cptm')"
+>
 
-                <h3>🚆 Motiva</h3>
+<h3>🚆 CPTM</h3>
 
-                <p>
-                    Linhas 4-Amarela e 5-Lilás.
-                </p>
+<p>
+Linhas da CPTM
+</p>
 
-            </div>
-
-
-        </div>
-
-    </section>
+</div>
 
 
-    <!-- LINHAS -->
+<div
+class="sistema"
+onclick="mostrarSistema('viamobilidade')"
+>
 
-    <section id="lines" class="lines">
+<h3>🚆 ViaMobilidade</h3>
 
-        <h2 id="linesTitle"></h2>
+<p>
+Linhas 8-Diamante e 9-Esmeralda
+</p>
 
-        <div id="linesList"></div>
-
-    </section>
-
-
-    <!-- ESTAÇÕES -->
-
-    <section id="stations" class="stations">
-
-        <h2 id="stationsTitle"></h2>
-
-        <div id="stationsList"></div>
-
-    </section>
+</div>
 
 
-    <!-- RESULTADO DA PESQUISA -->
+<div
+class="sistema"
+onclick="mostrarSistema('motiva')"
+>
 
-    <div id="result" class="result"></div>
+<h3>🚆 Motiva</h3>
+
+<p>
+Linhas 4-Amarela e 5-Lilás
+</p>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+<!-- LINHAS -->
+
+<section
+id="linhas"
+class="linhas"
+>
+
+<h2 id="tituloLinhas"></h2>
+
+<div id="listaLinhas"></div>
+
+</section>
+
+
+<!-- ESTAÇÕES -->
+
+<section
+id="estacoes"
+class="estacoes"
+>
+
+<h2 id="tituloEstacoes"></h2>
+
+<div id="listaEstacoes"></div>
+
+</section>
+
+
+<!-- FICHA -->
+
+<section
+id="ficha"
+class="ficha"
+>
+
+<h2 id="fichaNome"></h2>
+
+<div class="info">
+<strong>Sistema:</strong>
+<span id="fichaSistema"></span>
+</div>
+
+<div class="info">
+<strong>Linha:</strong>
+<span id="fichaLinha"></span>
+</div>
+
+<div class="info">
+<strong>Estação:</strong>
+<span id="fichaEstacao"></span>
+</div>
+
+<p>
+Mais informações sobre esta estação serão adicionadas
+nas próximas etapas.
+</p>
+
+<button
+class="voltar"
+onclick="voltarEstacoes()"
+>
+← Voltar para estações
+</button>
+
+</section>
+
+
+<!-- RESULTADO -->
+
+<section
+id="resultado"
+class="resultado"
+>
+
+<h2>🔎 Pesquisa</h2>
+
+<p id="textoPesquisa"></p>
+
+</section>
 
 
 </div>
@@ -345,7 +430,7 @@
 
 <footer>
 
-    Trilhos de São Paulo — Projeto independente
+Trilhos de São Paulo — Projeto independente
 
 </footer>
 
@@ -353,465 +438,497 @@
 <script>
 
 
-const sistemas = {
-
-
-    /* =========================
-       METRÔ
-    ========================= */
-
-    metro: {
-
-        nome: "🚇 Metrô",
-
-        linhas: [
-
-            {
-                nome: "Linha 1-Azul",
-                trajeto: "Jabaquara ↔ Tucuruvi",
-
-                estacoes: [
-                    "Jabaquara",
-                    "Conceição",
-                    "São Judas",
-                    "Saúde",
-                    "Praça da Árvore",
-                    "Santa Cruz",
-                    "Vila Mariana",
-                    "Ana Rosa",
-                    "Paraíso",
-                    "Vergueiro",
-                    "São Joaquim",
-                    "Japão-Liberdade",
-                    "Sé",
-                    "São Bento",
-                    "Luz",
-                    "Tiradentes",
-                    "Armênia",
-                    "Portuguesa-Tietê",
-                    "Carandiru",
-                    "Santana",
-                    "Jardim São Paulo-Ayrton Senna",
-                    "Parada Inglesa",
-                    "Tucuruvi"
-                ]
-            },
-
-
-            {
-                nome: "Linha 2-Verde",
-                trajeto: "Vila Prudente ↔ Vila Madalena",
-
-                estacoes: [
-                    "Vila Prudente",
-                    "Oratório",
-                    "São Lucas",
-                    "Camilo Haddad",
-                    "Vila Tolstói",
-                    "Vila União",
-                    "Jardim Planalto",
-                    "Sapopemba",
-                    "Fazenda da Juta",
-                    "São Mateus",
-                    "Jardim Colonial",
-                    "Sacomã",
-                    "Alto do Ipiranga",
-                    "Santos-Imigrantes",
-                    "Chácara Klabin",
-                    "Ana Rosa",
-                    "Paraíso",
-                    "Brigadeiro",
-                    "Trianon-Masp",
-                    "Consolação",
-                    "Clínicas",
-                    "Sumaré",
-                    "Vila Madalena"
-                ]
-            },
-
-
-            {
-                nome: "Linha 3-Vermelha",
-                trajeto: "Corinthians-Itaquera ↔ Palmeiras-Barra Funda",
-
-                estacoes: [
-                    "Corinthians-Itaquera",
-                    "Artur Alvim",
-                    "Patriarca-Vila Ré",
-                    "Guilhermina-Esperança",
-                    "Vila Matilde",
-                    "Penha",
-                    "Carrão",
-                    "Tatuapé",
-                    "Belém",
-                    "Bresser-Mooca",
-                    "Brás",
-                    "Pedro II",
-                    "Sé",
-                    "Anhangabaú",
-                    "República",
-                    "Santa Cecília",
-                    "Marechal Deodoro",
-                    "Palmeiras-Barra Funda"
-                ]
-            },
-
-
-            {
-                nome: "Linha 15-Prata",
-                trajeto: "Vila Prudente ↔ Jardim Colonial",
-
-                estacoes: [
-                    "Vila Prudente",
-                    "Oratório",
-                    "São Lucas",
-                    "Camilo Haddad",
-                    "Vila Tolstói",
-                    "Vila União",
-                    "Jardim Planalto",
-                    "Sapopemba",
-                    "Fazenda da Juta",
-                    "São Mateus",
-                    "Jardim Colonial"
-                ]
-            },
-
-
-            {
-                nome: "Linha 17-Ouro",
-                trajeto: "Morumbi ↔ Aeroporto de Congonhas",
-
-                estacoes: [
-                    "Morumbi",
-                    "Chucri Zaidan",
-                    "Vila Cordeiro",
-                    "Campo Belo",
-                    "Vereador José Diniz",
-                    "Brooklin Paulista",
-                    "Aeroporto de Congonhas",
-                    "Washington Luís"
-                ]
-            }
-
-        ]
-
-    },
-
-
-    /* =========================
-       CPTM
-    ========================= */
-
-    cptm: {
-
-        nome: "🚆 CPTM",
-
-        linhas: [
-
-            {
-                nome: "Linha 7-Rubi",
-                trajeto: "Jundiaí ↔ Palmeiras-Barra Funda",
-
-                estacoes: [
-                    "Palmeiras-Barra Funda",
-                    "Água Branca",
-                    "Lapa",
-                    "Piqueri",
-                    "Pirituba",
-                    "Vila Clarice",
-                    "Jaraguá",
-                    "Perus",
-                    "Caieiras",
-                    "Franco da Rocha",
-                    "Baltazar Fidélis",
-                    "Francisco Morato",
-                    "Botujuru",
-                    "Campo Limpo Paulista",
-                    "Várzea Paulista",
-                    "Jundiaí"
-                ]
-            },
-
-
-            {
-                nome: "Linha 10-Turquesa",
-                trajeto: "Brás ↔ Rio Grande da Serra",
-
-                estacoes: [
-                    "Brás",
-                    "Mooca",
-                    "Ipiranga",
-                    "Tamanduateí",
-                    "São Caetano do Sul",
-                    "Utinga",
-                    "Prefeito Saladino",
-                    "Prefeito Celso Daniel-Santo André",
-                    "Capuava",
-                    "Mauá",
-                    "Guapituba",
-                    "Ribeirão Pires",
-                    "Rio Grande da Serra"
-                ]
-            },
-
-
-            {
-                nome: "Linha 11-Coral",
-                trajeto: "Luz ↔ Estudantes",
-
-                estacoes: [
-                    "Luz",
-                    "Brás",
-                    "Tatuapé",
-                    "Corinthians-Itaquera",
-                    "Dom Bosco",
-                    "José Bonifácio",
-                    "Guaianases",
-                    "Antônio Gianetti Neto",
-                    "Ferraz de Vasconcelos",
-                    "Poá",
-                    "Calmon Viana",
-                    "Suzano",
-                    "Jundiapeba",
-                    "Brás Cubas",
-                    "Mogi das Cruzes",
-                    "Estudantes"
-                ]
-            },
-
-
-            {
-                nome: "Linha 12-Safira",
-                trajeto: "Brás ↔ Calmon Viana",
-
-                estacoes: [
-                    "Brás",
-                    "Tatuapé",
-                    "Engenheiro Goulart",
-                    "USP Leste",
-                    "Comendador Ermelino",
-                    "São Miguel Paulista",
-                    "Jardim Helena-Vila Mara",
-                    "Itaim Paulista",
-                    "Jardim Romano",
-                    "Engenheiro Manoel Feio",
-                    "Itaquaquecetuba",
-                    "Aracaré",
-                    "Calmon Viana"
-                ]
-            },
-
-
-            {
-                nome: "Linha 13-Jade",
-                trajeto: "Palmeiras-Barra Funda ↔ Aeroporto-Guarulhos",
-
-                estacoes: [
-                    "Palmeiras-Barra Funda",
-                    "Engenheiro Goulart",
-                    "Guarulhos-Cecap",
-                    "Aeroporto-Guarulhos"
-                ]
-            }
-
-        ]
-
-    },
-
-
-    /* =========================
-       VIAMOBILIDADE
-    ========================= */
-
-    viamobilidade: {
-
-        nome: "🚆 ViaMobilidade",
-
-        linhas: [
-
-            {
-                nome: "Linha 8-Diamante",
-                trajeto: "Júlio Prestes ↔ Amador Bueno",
-
-                estacoes: [
-                    "Júlio Prestes",
-                    "Palmeiras-Barra Funda",
-                    "Lapa",
-                    "Domingos de Moraes",
-                    "Imperatriz Leopoldina",
-                    "Presidente Altino",
-                    "Osasco",
-                    "Comandante Sampaio",
-                    "Quitaúna",
-                    "General Miguel Costa",
-                    "Carapicuíba",
-                    "Santa Terezinha",
-                    "Antônio João",
-                    "Barueri",
-                    "Jardim Belval",
-                    "Jardim Silveira",
-                    "Jandira",
-                    "Sagrado Coração",
-                    "Engenheiro Cardoso",
-                    "Itapevi",
-                    "Santa Rita",
-                    "Amador Bueno"
-                ]
-            },
-
-
-            {
-                nome: "Linha 9-Esmeralda",
-                trajeto: "Osasco ↔ Varginha",
-
-                estacoes: [
-                    "Osasco",
-                    "Presidente Altino",
-                    "Ceasa",
-                    "Vila Lobos-Jaguaré",
-                    "Cidade Universitária",
-                    "Pinheiros",
-                    "Hebraica-Rebouças",
-                    "Cidade Jardim",
-                    "Vila Olímpia",
-                    "Berrini",
-                    "Morumbi",
-                    "Granja Julieta",
-                    "João Dias",
-                    "Santo Amaro",
-                    "Socorro",
-                    "Jurubatuba",
-                    "Autódromo",
-                    "Primavera-Interlagos",
-                    "Grajaú",
-                    "Varginha"
-                ]
-            }
-
-        ]
-
-    },
-
-
-    /* =========================
-       MOTIVA
-    ========================= */
-
-    motiva: {
-
-        nome: "🚆 Motiva",
-
-        linhas: [
-
-            {
-                nome: "Linha 4-Amarela",
-                trajeto: "Vila Sônia ↔ Luz",
-
-                estacoes: [
-                    "Vila Sônia-Profa. Elisabeth Tenreiro",
-                    "São Paulo-Morumbi",
-                    "Butantã",
-                    "Pinheiros",
-                    "Faria Lima",
-                    "Fradique Coutinho",
-                    "Oscar Freire",
-                    "Paulista",
-                    "Higienópolis-Mackenzie",
-                    "República",
-                    "Luz"
-                ]
-            },
-
-
-            {
-                nome: "Linha 5-Lilás",
-                trajeto: "Capão Redondo ↔ Chácara Klabin",
-
-                estacoes: [
-                    "Capão Redondo",
-                    "Campo Limpo",
-                    "Vila das Belezas",
-                    "Giovanni Gronchi",
-                    "Santo Amaro",
-                    "Largo Treze",
-                    "Adolfo Pinheiro",
-                    "Alto da Boa Vista",
-                    "Borba Gato",
-                    "Brooklin",
-                    "Campo Belo",
-                    "Eucaliptos",
-                    "Moema",
-                    "AACD-Servidor",
-                    "Hospital São Paulo",
-                    "Santa Cruz",
-                    "Chácara Klabin"
-                ]
-            }
-
-        ]
-
-    }
+/* =========================
+   DADOS
+========================= */
+
+const dados = {
+
+
+metro: {
+
+nome: "🚇 Metrô",
+
+linhas: [
+
+{
+nome: "Linha 1-Azul",
+trajeto: "Jabaquara ↔ Tucuruvi",
+
+estacoes: [
+
+"Jabaquara",
+"Conceição",
+"São Judas",
+"Saúde",
+"Praça da Árvore",
+"Santa Cruz",
+"Vila Mariana",
+"Ana Rosa",
+"Paraíso",
+"Vergueiro",
+"São Joaquim",
+"Japão-Liberdade",
+"Sé",
+"São Bento",
+"Luz",
+"Tiradentes",
+"Armênia",
+"Portuguesa-Tietê",
+"Carandiru",
+"Santana",
+"Jardim São Paulo-Ayrton Senna",
+"Parada Inglesa",
+"Tucuruvi"
+
+]
+
+},
+
+
+{
+nome: "Linha 2-Verde",
+trajeto: "Vila Prudente ↔ Vila Madalena",
+
+estacoes: [
+
+"Vila Prudente",
+"Oratório",
+"São Lucas",
+"Camilo Haddad",
+"Vila Tolstói",
+"Vila União",
+"Jardim Planalto",
+"Sapopemba",
+"Fazenda da Juta",
+"São Mateus",
+"Jardim Colonial",
+"Sacomã",
+"Alto do Ipiranga",
+"Santos-Imigrantes",
+"Chácara Klabin",
+"Ana Rosa",
+"Paraíso",
+"Brigadeiro",
+"Trianon-Masp",
+"Consolação",
+"Clínicas",
+"Sumaré",
+"Vila Madalena"
+
+]
+
+},
+
+
+{
+nome: "Linha 3-Vermelha",
+trajeto: "Corinthians-Itaquera ↔ Palmeiras-Barra Funda",
+
+estacoes: [
+
+"Corinthians-Itaquera",
+"Artur Alvim",
+"Patriarca-Vila Ré",
+"Guilhermina-Esperança",
+"Vila Matilde",
+"Penha",
+"Carrão",
+"Tatuapé",
+"Belém",
+"Bresser-Mooca",
+"Brás",
+"Pedro II",
+"Sé",
+"Anhangabaú",
+"República",
+"Santa Cecília",
+"Marechal Deodoro",
+"Palmeiras-Barra Funda"
+
+]
+
+},
+
+
+{
+nome: "Linha 15-Prata",
+trajeto: "Vila Prudente ↔ Jardim Colonial",
+
+estacoes: [
+
+"Vila Prudente",
+"Oratório",
+"São Lucas",
+"Camilo Haddad",
+"Vila Tolstói",
+"Vila União",
+"Jardim Planalto",
+"Sapopemba",
+"Fazenda da Juta",
+"São Mateus",
+"Jardim Colonial"
+
+]
+
+},
+
+
+{
+nome: "Linha 17-Ouro",
+trajeto: "Morumbi ↔ Aeroporto de Congonhas",
+
+estacoes: [
+
+"Morumbi",
+"Chucri Zaidan",
+"Vila Cordeiro",
+"Campo Belo",
+"Vereador José Diniz",
+"Brooklin Paulista",
+"Aeroporto de Congonhas"
+
+]
+
+}
+
+]
+
+},
+
+
+cptm: {
+
+nome: "🚆 CPTM",
+
+linhas: [
+
+{
+nome: "Linha 7-Rubi",
+trajeto: "Jundiaí ↔ Palmeiras-Barra Funda",
+
+estacoes: [
+
+"Palmeiras-Barra Funda",
+"Água Branca",
+"Lapa",
+"Piqueri",
+"Pirituba",
+"Vila Clarice",
+"Jaraguá",
+"Perus",
+"Caieiras",
+"Franco da Rocha",
+"Baltazar Fidélis",
+"Francisco Morato",
+"Botujuru",
+"Campo Limpo Paulista",
+"Várzea Paulista",
+"Jundiaí"
+
+]
+
+},
+
+
+{
+nome: "Linha 10-Turquesa",
+trajeto: "Brás ↔ Rio Grande da Serra",
+
+estacoes: [
+
+"Brás",
+"Mooca",
+"Ipiranga",
+"Tamanduateí",
+"São Caetano do Sul",
+"Utinga",
+"Prefeito Saladino",
+"Santo André",
+"Capuava",
+"Mauá",
+"Guapituba",
+"Ribeirão Pires",
+"Rio Grande da Serra"
+
+]
+
+},
+
+
+{
+nome: "Linha 11-Coral",
+trajeto: "Luz ↔ Estudantes",
+
+estacoes: [
+
+"Luz",
+"Brás",
+"Tatuapé",
+"Corinthians-Itaquera",
+"Dom Bosco",
+"José Bonifácio",
+"Guaianases",
+"Antônio Gianetti Neto",
+"Ferraz de Vasconcelos",
+"Poá",
+"Calmon Viana",
+"Suzano",
+"Jundiapeba",
+"Brás Cubas",
+"Mogi das Cruzes",
+"Estudantes"
+
+]
+
+},
+
+
+{
+nome: "Linha 12-Safira",
+trajeto: "Brás ↔ Calmon Viana",
+
+estacoes: [
+
+"Brás",
+"Tatuapé",
+"Engenheiro Goulart",
+"USP Leste",
+"Comendador Ermelino",
+"São Miguel Paulista",
+"Jardim Helena-Vila Mara",
+"Itaim Paulista",
+"Jardim Romano",
+"Engenheiro Manoel Feio",
+"Itaquaquecetuba",
+"Aracaré",
+"Calmon Viana"
+
+]
+
+},
+
+
+{
+nome: "Linha 13-Jade",
+trajeto: "Engenheiro Goulart ↔ Aeroporto-Guarulhos",
+
+estacoes: [
+
+"Engenheiro Goulart",
+"Guarulhos-Cecap",
+"Aeroporto-Guarulhos"
+
+]
+
+}
+
+]
+
+},
+
+
+viamobilidade: {
+
+nome: "🚆 ViaMobilidade",
+
+linhas: [
+
+{
+nome: "Linha 8-Diamante",
+trajeto: "Júlio Prestes ↔ Amador Bueno",
+
+estacoes: [
+
+"Júlio Prestes",
+"Palmeiras-Barra Funda",
+"Lapa",
+"Domingos de Moraes",
+"Imperatriz Leopoldina",
+"Presidente Altino",
+"Osasco",
+"Comandante Sampaio",
+"Quitaúna",
+"General Miguel Costa",
+"Carapicuíba",
+"Santa Terezinha",
+"Antônio João",
+"Barueri",
+"Jardim Belval",
+"Jardim Silveira",
+"Jandira",
+"Sagrado Coração",
+"Engenheiro Cardoso",
+"Itapevi",
+"Santa Rita",
+"Amador Bueno"
+
+]
+
+},
+
+
+{
+nome: "Linha 9-Esmeralda",
+trajeto: "Osasco ↔ Varginha",
+
+estacoes: [
+
+"Osasco",
+"Presidente Altino",
+"Ceasa",
+"Villa-Lobos-Jaguaré",
+"Cidade Universitária",
+"Pinheiros",
+"Hebraica-Rebouças",
+"Cidade Jardim",
+"Vila Olímpia",
+"Berrini",
+"Morumbi",
+"Granja Julieta",
+"João Dias",
+"Santo Amaro",
+"Socorro",
+"Jurubatuba",
+"Autódromo",
+"Primavera-Interlagos",
+"Grajaú",
+"Varginha"
+
+]
+
+}
+
+]
+
+},
+
+
+motiva: {
+
+nome: "🚆 Motiva",
+
+linhas: [
+
+{
+nome: "Linha 4-Amarela",
+trajeto: "Vila Sônia ↔ Luz",
+
+estacoes: [
+
+"Vila Sônia",
+"São Paulo-Morumbi",
+"Butantã",
+"Pinheiros",
+"Faria Lima",
+"Fradique Coutinho",
+"Oscar Freire",
+"Paulista",
+"Higienópolis-Mackenzie",
+"República",
+"Luz"
+
+]
+
+},
+
+
+{
+nome: "Linha 5-Lilás",
+trajeto: "Capão Redondo ↔ Chácara Klabin",
+
+estacoes: [
+
+"Capão Redondo",
+"Campo Limpo",
+"Vila das Belezas",
+"Giovanni Gronchi",
+"Santo Amaro",
+"Largo Treze",
+"Adolfo Pinheiro",
+"Alto da Boa Vista",
+"Borba Gato",
+"Brooklin",
+"Campo Belo",
+"Eucaliptos",
+"Moema",
+"AACD-Servidor",
+"Hospital São Paulo",
+"Santa Cruz",
+"Chácara Klabin"
+
+]
+
+}
+
+]
+
+}
 
 };
 
 
 /* =========================
-   MOSTRAR LINHAS
+   MOSTRAR SISTEMA
 ========================= */
 
-function mostrarLinhas(sistema) {
+function mostrarSistema(sistema) {
 
-    const dados = sistemas[sistema];
+const dadosSistema = dados[sistema];
 
-    const area = document.getElementById("lines");
+const linhas =
+document.getElementById("linhas");
 
-    const titulo = document.getElementById("linesTitle");
+const titulo =
+document.getElementById("tituloLinhas");
 
-    const lista = document.getElementById("linesList");
+const lista =
+document.getElementById("listaLinhas");
 
+titulo.innerText = dadosSistema.nome;
 
-    titulo.textContent = dados.nome;
-
-    lista.innerHTML = "";
-
-
-    dados.linhas.forEach(linha => {
-
-        const div = document.createElement("div");
-
-        div.className = "line-card";
+lista.innerHTML = "";
 
 
-        div.innerHTML = `
+dadosSistema.linhas.forEach(function(linha) {
 
-            <h3>${linha.nome}</h3>
+const div =
+document.createElement("div");
 
-            <p>${linha.trajeto}</p>
+div.className = "linha";
 
-        `;
+div.innerHTML = `
+
+<h3>${linha.nome}</h3>
+
+<p>${linha.trajeto}</p>
+
+`;
+
+div.onclick = function() {
+
+mostrarEstacoes(
+linha,
+dadosSistema.nome
+);
+
+};
+
+lista.appendChild(div);
+
+});
 
 
-        div.onclick = function() {
+linhas.style.display = "block";
 
-            mostrarEstacoes(linha);
+document.getElementById("estacoes").style.display = "none";
 
-        };
-
-
-        lista.appendChild(div);
-
-    });
+document.getElementById("ficha").style.display = "none";
 
 
-    area.style.display = "block";
-
-
-    document.getElementById("stations").style.display = "none";
-
-
-    area.scrollIntoView({
-        behavior: "smooth"
-    });
+linhas.scrollIntoView({
+behavior: "smooth"
+});
 
 }
 
@@ -820,53 +937,110 @@ function mostrarLinhas(sistema) {
    MOSTRAR ESTAÇÕES
 ========================= */
 
-function mostrarEstacoes(linha) {
+function mostrarEstacoes(linha, sistema) {
 
-    const area =
-        document.getElementById("stations");
+const area =
+document.getElementById("estacoes");
 
-    const titulo =
-        document.getElementById("stationsTitle");
+const titulo =
+document.getElementById("tituloEstacoes");
 
-    const lista =
-        document.getElementById("stationsList");
-
-
-    titulo.textContent =
-        "🚉 " + linha.nome;
+const lista =
+document.getElementById("listaEstacoes");
 
 
-    lista.innerHTML = "";
+titulo.innerText =
+"🚉 " + linha.nome;
 
 
-    linha.estacoes.forEach((estacao, index) => {
-
-        const div =
-            document.createElement("div");
+lista.innerHTML = "";
 
 
-        div.className = "station";
+linha.estacoes.forEach(function(estacao, indice) {
+
+const div =
+document.createElement("div");
+
+div.className = "estacao";
+
+div.innerText =
+(indice + 1) + ". " + estacao;
 
 
-        div.innerHTML = `
+div.onclick = function() {
 
-            <strong>${index + 1}.</strong>
-            ${estacao}
+mostrarFicha(
+estacao,
+linha.nome,
+sistema
+);
 
-        `;
-
-
-        lista.appendChild(div);
-
-    });
+};
 
 
-    area.style.display = "block";
+lista.appendChild(div);
+
+});
 
 
-    area.scrollIntoView({
-        behavior: "smooth"
-    });
+area.style.display = "block";
+
+document.getElementById("ficha").style.display = "none";
+
+
+area.scrollIntoView({
+behavior: "smooth"
+});
+
+}
+
+
+/* =========================
+   FICHA DA ESTAÇÃO
+========================= */
+
+function mostrarFicha(
+estacao,
+linha,
+sistema
+) {
+
+document.getElementById("fichaNome").innerText =
+"🚉 " + estacao;
+
+document.getElementById("fichaSistema").innerText =
+sistema;
+
+document.getElementById("fichaLinha").innerText =
+linha;
+
+document.getElementById("fichaEstacao").innerText =
+estacao;
+
+
+document.getElementById("ficha").style.display =
+"block";
+
+
+document.getElementById("ficha").scrollIntoView({
+behavior: "smooth"
+});
+
+}
+
+
+/* =========================
+   VOLTAR
+========================= */
+
+function voltarEstacoes() {
+
+document.getElementById("ficha").style.display =
+"none";
+
+document.getElementById("estacoes").scrollIntoView({
+behavior: "smooth"
+});
 
 }
 
@@ -877,54 +1051,42 @@ function mostrarEstacoes(linha) {
 
 function pesquisar() {
 
-    const texto =
-        document.getElementById("searchInput").value
-        .trim();
+const texto =
+document.getElementById("pesquisa").value.trim();
 
 
-    const resultado =
-        document.getElementById("result");
+if (texto === "") {
+
+alert("Digite alguma coisa para pesquisar.");
+
+return;
+
+}
 
 
-    if (texto === "") {
+const resultado =
+document.getElementById("resultado");
 
-        resultado.style.display = "block";
-
-        resultado.innerHTML = `
-
-            <h3>Digite algo para pesquisar.</h3>
-
-        `;
-
-        return;
-
-    }
+const textoPesquisa =
+document.getElementById("textoPesquisa");
 
 
-    resultado.style.display = "block";
+textoPesquisa.innerHTML =
+
+"Você pesquisou por: <strong>" +
+texto +
+"</strong><br><br>" +
+
+"A pesquisa inteligente na web será adicionada " +
+"nos próximos passos.";
 
 
-    resultado.innerHTML = `
-
-        <h2>🔎 Pesquisa</h2>
-
-        <p>Você pesquisou por:</p>
-
-        <h3>${texto}</h3>
-
-        <br>
-
-        <p>
-            A pesquisa inteligente na web será
-            adicionada nos próximos passos.
-        </p>
-
-    `;
+resultado.style.display = "block";
 
 
-    resultado.scrollIntoView({
-        behavior: "smooth"
-    });
+resultado.scrollIntoView({
+behavior: "smooth"
+});
 
 }
 
