@@ -1062,23 +1062,34 @@ async function pesquisar() {
     const textoPesquisa = document.getElementById("textoPesquisa");
 
     resultado.style.display = "block";
-    textoPesquisa.innerHTML = "🔎 Entendendo sua pergunta...";
+    textoPesquisa.innerHTML = "🔎 Calculando sua rota...";
 
     resultado.scrollIntoView({
         behavior: "smooth"
     });
 
+    // ==============================
+    // NORMALIZA TEXTO
+    // ==============================
+
     function normalizar(texto) {
+
         return texto
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[?!.;,]/g, "")
             .trim();
+
     }
 
     const pergunta = normalizar(texto);
 
-    // Reúne todas as estações
+
+    // ==============================
+    // REÚNE TODAS AS ESTAÇÕES
+    // ==============================
+
     const todasEstacoes = [];
 
     for (const chaveSistema in dados) {
@@ -1102,42 +1113,121 @@ async function pesquisar() {
 
     }
 
-    // Procura quais estações aparecem na pergunta
-    let encontradas = [];
+
+    // ==============================
+    // LISTA ÚNICA DE ESTAÇÕES
+    // ==============================
+
+    const nomesEstacoes = [];
 
     for (const estacao of todasEstacoes) {
 
-        const nome = normalizar(estacao.nome);
+        const nomeNormalizado = normalizar(estacao.nome);
 
-        if (pergunta.includes(nome)) {
-            encontradas.push(estacao);
+        if (
+            !nomesEstacoes.some(
+                nome => normalizar(nome) === nomeNormalizado
+            )
+        ) {
+
+            nomesEstacoes.push(estacao.nome);
+
         }
 
     }
 
-    // Remove duplicações
+
+    // ==============================
+    // DESCOBRE AS ESTAÇÕES CITADAS
+    // ==============================
+
+    let encontradas = [];
+
+    for (const nomeEstacao of nomesEstacoes) {
+
+        const nomeNormalizado = normalizar(nomeEstacao);
+
+        if (nomeNormalizado.length >= 2 && pergunta.includes(nomeNormalizado)) {
+
+            encontradas.push(nomeEstacao);
+
+        }
+
+    }
+
+
+    // Estações com nomes maiores primeiro
+    encontradas.sort(
+        (a, b) => normalizar(b).length - normalizar(a).length
+    );
+
+
+    // Remove possíveis duplicações
     encontradas = encontradas.filter(
-        (estacao, indice, lista) =>
+        (nome, indice, lista) =>
             indice === lista.findIndex(
-                item => normalizar(item.nome) === normalizar(estacao.nome)
+                item => normalizar(item) === normalizar(nome)
             )
     );
 
-    // Ordena nomes maiores primeiro
-    // Isso evita confundir nomes parecidos
-    encontradas.sort(
-        (a, b) => b.nome.length - a.nome.length
-    );
 
-    // Se encontrou duas estações, tenta calcular o caminho
+    // ==============================
+    // SE EXISTEM ORIGEM E DESTINO
+    // ==============================
+
     if (encontradas.length >= 2) {
 
         const origem = encontradas[0];
         const destino = encontradas[1];
 
-        // Descobre todas as linhas que passam por cada estação
-        const linhasOrigem = [];
-        const linhasDestino = [];
+        const origemNormalizada = normalizar(origem);
+        const destinoNormalizado = normalizar(destino);
+
+
+        // ==============================
+        // CRIA O MAPA DE ESTAÇÕES
+        // ==============================
+
+        const mapa = {};
+
+
+        function adicionarEstacao(nome) {
+
+            const chave = normalizar(nome);
+
+            if (!mapa[chave]) {
+
+                mapa[chave] = {
+                    nome: nome,
+                    conexoes: []
+                };
+
+            }
+
+        }
+
+
+        // Cria todas as estações
+        for (const chaveSistema in dados) {
+
+            const sistema = dados[chaveSistema];
+
+            for (const linha of sistema.linhas) {
+
+                for (const estacao of linha.estacoes) {
+
+                    adicionarEstacao(estacao);
+
+                }
+
+            }
+
+        }
+
+
+        // ==============================
+        // CRIA CONEXÕES ENTRE ESTAÇÕES
+        // ==============================
 
         for (const chaveSistema in dados) {
 
@@ -1145,130 +1235,45 @@ async function pesquisar() {
 
             for (const linha of sistema.linhas) {
 
-                const estacoesNormalizadas =
-                    linha.estacoes.map(normalizar);
+                const estacoes = linha.estacoes;
 
-                if (
-                    estacoesNormalizadas.includes(
-                        normalizar(origem.nome)
-                    )
-                ) {
-                    linhasOrigem.push({
-                        sistema: sistema.nome,
-                        linha: linha
-                    });
-                }
+                for (let i = 0; i < estacoes.length; i++) {
 
-                if (
-                    estacoesNormalizadas.includes(
-                        normalizar(destino.nome)
-                    )
-                ) {
-                    linhasDestino.push({
-                        sistema: sistema.nome,
-                        linha: linha
-                    });
-                }
+                    const atual = normalizar(estacoes[i]);
 
-            }
+                    // Estação anterior
+                    if (i > 0) {
 
-        }
+                        const anterior = normalizar(estacoes[i - 1]);
 
-        // Verifica primeiro se existe uma linha direta
-        for (const origemLinha of linhasOrigem) {
+                        if (mapa[atual] && mapa[anterior]) {
 
-            const estacoes =
-                origemLinha.linha.estacoes.map(normalizar);
+                            mapa[atual].conexoes.push({
+                                estacao: anterior,
+                                linha: linha.nome,
+                                sistema: sistema.nome
+                            });
 
-            if (
-                estacoes.includes(
-                    normalizar(destino.nome)
-                )
-            ) {
+                        }
 
-                textoPesquisa.innerHTML =
-                    `<strong>🚆 Sim! Existe um trajeto direto.</strong>
-                    <br><br>
-                    <strong>Origem:</strong> ${origem.nome}
-                    <br>
-                    <strong>Destino:</strong> ${destino.nome}
-                    <br><br>
-                    <strong>Linha:</strong> ${origemLinha.linha.nome}
-                    <br>
-                    <strong>Sistema:</strong> ${origemLinha.sistema}
-                    <br><br>
-                    Você pode fazer o trajeto sem trocar de linha.`;
+                    }
 
-                return;
-            }
 
-        }
+                    // Estação seguinte
+                    if (i < estacoes.length - 1) {
 
-        // Procura uma estação de transferência
-        for (const origemLinha of linhasOrigem) {
+                        const seguinte = normalizar(estacoes[i + 1]);
 
-            const origemEstacoes =
-                origemLinha.linha.estacoes;
+                        if (mapa[atual] && mapa[seguinte]) {
 
-            for (const destinoLinha of linhasDestino) {
+                            mapa[atual].conexoes.push({
+                                estacao: seguinte,
+                                linha: linha.nome,
+                                sistema: sistema.nome
+                            });
 
-                const destinoEstacoes =
-                    destinoLinha.linha.estacoes;
+                        }
 
-                for (const estacaoOrigem of origemEstacoes) {
-
-                    const normalizada =
-                        normalizar(estacaoOrigem);
-
-                    const existeIntegracao =
-                        destinoEstacoes.some(
-                            estacao =>
-                                normalizar(estacao) === normalizada
-                        );
-
-                    if (existeIntegracao) {
-
-                        textoPesquisa.innerHTML =
-                            `<strong>🚆 Sim! Dá para fazer esse trajeto.</strong>
-                            <br><br>
-
-                            <strong>Origem:</strong>
-                            ${origem.nome}
-
-                            <br>
-
-                            <strong>Destino:</strong>
-                            ${destino.nome}
-
-                            <br><br>
-
-                            <strong>1ª linha:</strong>
-                            ${origemLinha.linha.nome}
-
-                            <br>
-                            Sistema:
-                            ${origemLinha.sistema}
-
-                            <br><br>
-
-                            <strong>🔄 Faça a transferência em:</strong>
-                            ${estacaoOrigem}
-
-                            <br><br>
-
-                            <strong>2ª linha:</strong>
-                            ${destinoLinha.linha.nome}
-
-                            <br>
-                            Sistema:
-                            ${destinoLinha.sistema}
-
-                            <br><br>
-
-                            Você precisa trocar de linha
-                            durante o trajeto.`;
-
-                        return;
                     }
 
                 }
@@ -1277,51 +1282,433 @@ async function pesquisar() {
 
         }
 
-        textoPesquisa.innerHTML =
-            `<strong>🔎 Encontrei as duas estações.</strong>
+
+        // ==============================
+        // DESCOBRE AS LINHAS DE CADA ESTAÇÃO
+        // ==============================
+
+        const linhasPorEstacao = {};
+
+
+        for (const chaveSistema in dados) {
+
+            const sistema = dados[chaveSistema];
+
+            for (const linha of sistema.linhas) {
+
+                for (const estacao of linha.estacoes) {
+
+                    const chave = normalizar(estacao);
+
+                    if (!linhasPorEstacao[chave]) {
+                        linhasPorEstacao[chave] = [];
+                    }
+
+                    const jaExiste = linhasPorEstacao[chave].some(
+                        item =>
+                            item.linha === linha.nome &&
+                            item.sistema === sistema.nome
+                    );
+
+                    if (!jaExiste) {
+
+                        linhasPorEstacao[chave].push({
+                            linha: linha.nome,
+                            sistema: sistema.nome
+                        });
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+        // ==============================
+        // BUSCA O CAMINHO
+        // ==============================
+
+        const fila = [];
+
+
+        // Começa em todas as linhas da estação de origem
+        const linhasIniciais =
+            linhasPorEstacao[origemNormalizada] || [];
+
+
+        for (const info of linhasIniciais) {
+
+            fila.push({
+                estacao: origemNormalizada,
+                linha: info.linha,
+                sistema: info.sistema,
+                caminho: [origem],
+                linhas: [info.linha],
+                sistemas: [info.sistema],
+                baldeacoes: []
+            });
+
+        }
+
+
+        const visitados = new Set();
+
+
+        let rotaEncontrada = null;
+
+
+        while (fila.length > 0) {
+
+            const estado = fila.shift();
+
+
+            const chaveEstado =
+                estado.estacao + "|" +
+                normalizar(estado.linha);
+
+
+            if (visitados.has(chaveEstado)) {
+                continue;
+            }
+
+            visitados.add(chaveEstado);
+
+
+            // ==============================
+            // CHEGOU AO DESTINO
+            // ==============================
+
+            if (estado.estacao === destinoNormalizada) {
+
+                rotaEncontrada = estado;
+                break;
+
+            }
+
+
+            const dadosEstacao = mapa[estado.estacao];
+
+            if (!dadosEstacao) {
+                continue;
+            }
+
+
+            // ==============================
+            // ANDAR PARA ESTAÇÕES VIZINHAS
+            // ==============================
+
+            for (const conexao of dadosEstacao.conexoes) {
+
+                if (
+                    normalizar(conexao.linha) !==
+                    normalizar(estado.linha)
+                ) {
+
+                    continue;
+
+                }
+
+
+                const novoCaminho = [
+                    ...estado.caminho,
+                    mapa[conexao.estacao].nome
+                ];
+
+
+                fila.push({
+
+                    estacao: conexao.estacao,
+
+                    linha: estado.linha,
+
+                    sistema: estado.sistema,
+
+                    caminho: novoCaminho,
+
+                    linhas: [...estado.linhas],
+
+                    sistemas: [...estado.sistemas],
+
+                    baldeacoes: [...estado.baldeacoes]
+
+                });
+
+            }
+
+
+            // ==============================
+            // FAZER BALDEAÇÃO
+            // ==============================
+
+            const linhasDaEstacao =
+                linhasPorEstacao[estado.estacao] || [];
+
+
+            for (const novaLinha of linhasDaEstacao) {
+
+                if (
+                    normalizar(novaLinha.linha) ===
+                    normalizar(estado.linha)
+                ) {
+
+                    continue;
+
+                }
+
+
+                // Evita ficar trocando infinitamente
+                if (
+                    estado.linhas.some(
+                        linha =>
+                            normalizar(linha) ===
+                            normalizar(novaLinha.linha)
+                    )
+                ) {
+
+                    continue;
+
+                }
+
+
+                const novasLinhas = [
+                    ...estado.linhas,
+                    novaLinha.linha
+                ];
+
+
+                const novosSistemas = [
+                    ...estado.sistemas,
+                    novaLinha.sistema
+                ];
+
+
+                const novasBaldeacoes = [
+                    ...estado.baldeacoes,
+                    {
+                        estacao: mapa[estado.estacao].nome,
+                        de: estado.linha,
+                        para: novaLinha.linha
+                    }
+                ];
+
+
+                fila.push({
+
+                    estacao: estado.estacao,
+
+                    linha: novaLinha.linha,
+
+                    sistema: novaLinha.sistema,
+
+                    caminho: [...estado.caminho],
+
+                    linhas: novasLinhas,
+
+                    sistemas: novosSistemas,
+
+                    baldeacoes: novasBaldeacoes
+
+                });
+
+            }
+
+        }
+
+
+        // ==============================
+        // MOSTRA A ROTA
+        // ==============================
+
+        if (rotaEncontrada) {
+
+            let html = "";
+
+            html += `
+                <strong>🚆 Rota encontrada!</strong>
+                <br><br>
+
+                <strong>📍 Origem:</strong>
+                ${origem}
+
+                <br>
+
+                <strong>🏁 Destino:</strong>
+                ${destino}
+
+                <br><br>
+            `;
+
+
+            // ==============================
+            // LINHAS UTILIZADAS
+            // ==============================
+
+            html += `
+                <strong>🚇 Linhas utilizadas:</strong>
+                <br><br>
+            `;
+
+
+            rotaEncontrada.linhas.forEach(
+                (linha, indice) => {
+
+                    html += `
+                        ${indice + 1}. ${linha}
+                        <br>
+                    `;
+
+                }
+            );
+
+
+            // ==============================
+            // BALDEAÇÕES
+            // ==============================
+
+            if (rotaEncontrada.baldeacoes.length > 0) {
+
+                html += `
+                    <br>
+                    <strong>🔄 Baldeações:</strong>
+                    <br><br>
+                `;
+
+
+                rotaEncontrada.baldeacoes.forEach(
+                    (baldeacao, indice) => {
+
+                        html += `
+                            ${indice + 1}.
+                            Troque de
+                            <strong>${baldeacao.de}</strong>
+                            para
+                            <strong>${baldeacao.para}</strong>
+                            em
+                            <strong>${baldeacao.estacao}</strong>.
+                            <br><br>
+                        `;
+
+                    }
+                );
+
+            } else {
+
+                html += `
+                    <br>
+                    <strong>✅ Trajeto direto!</strong>
+                    <br><br>
+                    Você não precisa fazer baldeação.
+                `;
+
+            }
+
+
+            // ==============================
+            // SEQUÊNCIA DAS ESTAÇÕES
+            // ==============================
+
+            html += `
+                <br>
+                <strong>🗺️ Sequência do trajeto:</strong>
+                <br><br>
+            `;
+
+
+            rotaEncontrada.caminho.forEach(
+                (estacao, indice) => {
+
+                    html += `
+                        ${indice + 1}. ${estacao}
+                        <br>
+                    `;
+
+                }
+            );
+
+
+            html += `
+                <br>
+                <strong>🔢 Número de baldeações:</strong>
+                ${rotaEncontrada.baldeacoes.length}
+            `;
+
+
+            textoPesquisa.innerHTML = html;
+
+            return;
+
+        }
+
+
+        // ==============================
+        // NÃO ACHOU ROTA
+        // ==============================
+
+        textoPesquisa.innerHTML = `
+
+            <strong>🔎 Encontrei as duas estações.</strong>
+
             <br><br>
 
-            <strong>Origem:</strong>
-            ${origem.nome}
+            <strong>📍 Origem:</strong>
+            ${origem}
 
             <br>
 
-            <strong>Destino:</strong>
-            ${destino.nome}
+            <strong>🏁 Destino:</strong>
+            ${destino}
 
             <br><br>
 
-            Não encontrei um caminho entre elas nos dados atuais do site.
-            <br><br>
+            Não consegui encontrar uma rota entre elas
+            usando as linhas cadastradas atualmente no site.
 
-            Podemos adicionar mais integrações e caminhos ao sistema.`;
+        `;
 
         return;
+
     }
 
-    // Pesquisa normal por estação ou linha
+
+    // ==============================
+    // PESQUISA NORMAL
+    // ==============================
+
     let resultados = [];
+
 
     for (const chaveSistema in dados) {
 
         const sistema = dados[chaveSistema];
 
+
         for (const linha of sistema.linhas) {
 
+            const linhaNormalizada =
+                normalizar(linha.nome);
+
+            const trajetoNormalizado =
+                normalizar(linha.trajeto);
+
+
             if (
-                normalizar(linha.nome).includes(pergunta) ||
-                normalizar(linha.trajeto).includes(pergunta)
+                linhaNormalizada.includes(pergunta) ||
+                trajetoNormalizado.includes(pergunta)
             ) {
 
-                resultados.push(
-                    `<strong>${sistema.nome}</strong>
+                resultados.push(`
+                    <strong>${sistema.nome}</strong>
                     <br>
                     ${linha.nome}
                     <br>
-                    Trajeto: ${linha.trajeto}`
-                );
+                    Trajeto:
+                    ${linha.trajeto}
+                `);
 
             }
+
 
             for (const estacao of linha.estacoes) {
 
@@ -1329,15 +1716,18 @@ async function pesquisar() {
                     normalizar(estacao).includes(pergunta)
                 ) {
 
-                    resultados.push(
-                        `<strong>${estacao}</strong>
+                    resultados.push(`
+                        <strong>📍 ${estacao}</strong>
                         <br>
-                        Sistema: ${sistema.nome}
+                        Sistema:
+                        ${sistema.nome}
                         <br>
-                        Linha: ${linha.nome}
+                        Linha:
+                        ${linha.nome}
                         <br>
-                        Trajeto: ${linha.trajeto}`
-                    );
+                        Trajeto:
+                        ${linha.trajeto}
+                    `);
 
                 }
 
@@ -1347,25 +1737,53 @@ async function pesquisar() {
 
     }
 
+
+    // ==============================
+    // SEM RESULTADOS
+    // ==============================
+
     if (resultados.length === 0) {
 
-        textoPesquisa.innerHTML =
-            `<strong>Não encontrei essa informação.</strong>
+        textoPesquisa.innerHTML = `
+
+            <strong>❌ Não encontrei essa informação.</strong>
+
             <br><br>
-            Tente escrever, por exemplo:
+
+            Você pode tentar perguntas como:
+
             <br><br>
+
             “Estou na Luz, dá para ir até Estudantes?”
+
             <br>
+
+            “Como chegar à Sé?”
+
+            <br>
+
             “Quais linhas passam pela Luz?”
+
             <br>
-            “Como chegar à Sé?”`;
+
+            “Quais estações existem na Linha 4-Amarela?”
+
+        `;
 
         return;
+
     }
 
+
+    // ==============================
+    // MOSTRA RESULTADOS
+    // ==============================
+
     textoPesquisa.innerHTML =
+
         `<strong>🔎 Encontrei:</strong>
         <br><br>` +
+
         resultados.join("<br><hr><br>");
 
 }
