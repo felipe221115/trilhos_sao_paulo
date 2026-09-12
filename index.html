@@ -1166,272 +1166,299 @@ async function pesquisar() {
 
 
     // ==========================================
-    // IDENTIFICAR ORIGEM E DESTINO
-    // ==========================================
+// IDENTIFICAR ORIGEM E DESTINO
+// ==========================================
 
-    let origem = null;
-    let destino = null;
+let origem = null;
+let destino = null;
 
 
-    if (encontradas.length >= 2) {
+// ==========================================
+// FUNÇÃO PARA ENCONTRAR ESTAÇÃO PELO TEXTO
+// ==========================================
 
-        // Procura palavras que indicam origem
-        const indicadoresOrigem = [
-            "estou na",
-            "estou em",
-            "saindo de",
-            "partindo de",
-            "sair de",
-            "inicio em",
-            "inicio na",
-            "começando em",
-            "comeco em",
-            "a partir de",
-            "de "
-        ];
+function encontrarEstacaoNoTrecho(trecho, listaExcluida = []) {
 
+    const candidatos = [];
 
-        // Procura palavras que indicam destino
-        const indicadoresDestino = [
-            "ate",
-            "para",
-            "vou para",
-            "quero ir para",
-            "chegar em",
-            "chegar na",
-            "destino",
-            "indo para"
-        ];
+    for (const estacao of todasEstacoes) {
 
+        const nome = normalizar(estacao);
 
-        // ======================================
-        // TENTA DESCOBRIR A ORIGEM
-        // ======================================
+        if (
+            nome.length >= 2 &&
+            normalizar(trecho).includes(nome) &&
+            !listaExcluida.some(
+                item =>
+                    normalizar(item) === nome
+            )
+        ) {
 
-        for (const estacao of encontradas) {
-
-            const nome = normalizar(estacao);
-
-            const posicao = pergunta.indexOf(nome);
-
-            if (posicao === -1) {
-                continue;
-            }
-
-
-            const antes = pergunta.substring(
-                Math.max(0, posicao - 35),
-                posicao
-            );
-
-
-            if (
-                indicadoresOrigem.some(
-                    indicador =>
-                        antes.includes(indicador)
-                )
-            ) {
-
-                origem = estacao;
-                break;
-
-            }
-
-        }
-
-
-        // ======================================
-        // TENTA DESCOBRIR O DESTINO
-        // ======================================
-
-        for (const estacao of encontradas) {
-
-            if (
-                normalizar(estacao) ===
-                normalizar(origem || "")
-            ) {
-                continue;
-            }
-
-
-            const nome = normalizar(estacao);
-
-            const posicao = pergunta.indexOf(nome);
-
-            if (posicao === -1) {
-                continue;
-            }
-
-
-            const depois = pergunta.substring(
-                posicao + nome.length
-            );
-
-
-            const antes = pergunta.substring(
-                Math.max(0, posicao - 20),
-                posicao
-            );
-
-
-            if (
-                indicadoresDestino.some(
-                    indicador =>
-                        depois.includes(indicador) ||
-                        antes.includes(indicador)
-                )
-            ) {
-
-                destino = estacao;
-                break;
-
-            }
-
-        }
-
-
-        // ======================================
-        // PADRÃO "DE X ATÉ Y"
-        // ======================================
-
-        if (!origem || !destino) {
-
-            const posDe = pergunta.indexOf(" de ");
-
-            const posAte = pergunta.indexOf(" ate ");
-
-            if (
-                posDe !== -1 &&
-                posAte !== -1 &&
-                posAte > posDe
-            ) {
-
-                const trechoOrigem =
-                    pergunta.substring(
-                        posDe + 4,
-                        posAte
-                    );
-
-
-                const trechoDestino =
-                    pergunta.substring(
-                        posAte + 5
-                    );
-
-
-                for (const estacao of encontradas) {
-
-                    const nome =
-                        normalizar(estacao);
-
-
-                    if (
-                        trechoOrigem.includes(nome)
-                    ) {
-
-                        origem = estacao;
-
-                    }
-
-
-                    if (
-                        trechoDestino.includes(nome)
-                    ) {
-
-                        destino = estacao;
-
-                    }
-
-                }
-
-            }
-
-        }
-
-
-        // ======================================
-        // PADRÃO "DE X PARA Y"
-        // ======================================
-
-        if (!origem || !destino) {
-
-            const posDe = pergunta.indexOf(" de ");
-
-            const posPara = pergunta.indexOf(" para ");
-
-            if (
-                posDe !== -1 &&
-                posPara !== -1 &&
-                posPara > posDe
-            ) {
-
-                const trechoOrigem =
-                    pergunta.substring(
-                        posDe + 4,
-                        posPara
-                    );
-
-
-                const trechoDestino =
-                    pergunta.substring(
-                        posPara + 6
-                    );
-
-
-                for (const estacao of encontradas) {
-
-                    const nome =
-                        normalizar(estacao);
-
-
-                    if (
-                        trechoOrigem.includes(nome)
-                    ) {
-
-                        origem = estacao;
-
-                    }
-
-
-                    if (
-                        trechoDestino.includes(nome)
-                    ) {
-
-                        destino = estacao;
-
-                    }
-
-                }
-
-            }
-
-        }
-
-
-        // ======================================
-        // SE AINDA NÃO DESCOBRIU
-        // USA A ORDEM DA FRASE
-        // ======================================
-
-        if (!origem) {
-
-            origem = encontradas[0];
-
-        }
-
-
-        if (!destino) {
-
-            destino = encontradas.find(
-                estacao =>
-                    normalizar(estacao) !==
-                    normalizar(origem)
-            );
+            candidatos.push(estacao);
 
         }
 
     }
 
+    // Nomes maiores primeiro
+    candidatos.sort(
+        (a, b) =>
+            normalizar(b).length -
+            normalizar(a).length
+    );
+
+    return candidatos[0] || null;
+
+}
+
+
+// ==========================================
+// PADRÃO: "ESTOU NA X ATÉ Y"
+// ==========================================
+
+let encontrado = texto.match(
+    /(?:estou\s+(?:na|em)|estou\s+em|saindo\s+d[ae]|partindo\s+d[ae])\s+(.+?)\s+(?:até|ate|para)\s+(.+)/i
+);
+
+
+if (encontrado) {
+
+    origem = encontrarEstacaoNoTrecho(
+        encontrado[1]
+    );
+
+    destino = encontrarEstacaoNoTrecho(
+        encontrado[2],
+        origem ? [origem] : []
+    );
+
+}
+
+
+// ==========================================
+// PADRÃO: "DE X ATÉ Y"
+// ==========================================
+
+if (!origem || !destino) {
+
+    encontrado = texto.match(
+        /\bde\s+(.+?)\s+(?:até|ate)\s+(.+)/i
+    );
+
+
+    if (encontrado) {
+
+        origem = encontrarEstacaoNoTrecho(
+            encontrado[1]
+        );
+
+        destino = encontrarEstacaoNoTrecho(
+            encontrado[2],
+            origem ? [origem] : []
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// PADRÃO: "DE X PARA Y"
+// ==========================================
+
+if (!origem || !destino) {
+
+    encontrado = texto.match(
+        /\bde\s+(.+?)\s+para\s+(.+)/i
+    );
+
+
+    if (encontrado) {
+
+        origem = encontrarEstacaoNoTrecho(
+            encontrado[1]
+        );
+
+        destino = encontrarEstacaoNoTrecho(
+            encontrado[2],
+            origem ? [origem] : []
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// PADRÃO: "X ATÉ Y"
+// ==========================================
+
+if (!origem || !destino) {
+
+    encontrado = texto.match(
+        /(.+?)\s+(?:até|ate)\s+(.+)/i
+    );
+
+
+    if (encontrado) {
+
+        origem = encontrarEstacaoNoTrecho(
+            encontrado[1]
+        );
+
+        destino = encontrarEstacaoNoTrecho(
+            encontrado[2],
+            origem ? [origem] : []
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// PADRÃO: "X PARA Y"
+// ==========================================
+
+if (!origem || !destino) {
+
+    encontrado = texto.match(
+        /(.+?)\s+para\s+(.+)/i
+    );
+
+
+    if (encontrado) {
+
+        origem = encontrarEstacaoNoTrecho(
+            encontrado[1]
+        );
+
+        destino = encontrarEstacaoNoTrecho(
+            encontrado[2],
+            origem ? [origem] : []
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// SEGURANÇA: ENCONTRAR ESTAÇÕES NA PERGUNTA
+// ==========================================
+
+if (!origem || !destino) {
+
+    const encontradasNaPergunta = [];
+
+    for (const estacao of todasEstacoes) {
+
+        const nome = normalizar(estacao);
+
+        const posicao =
+            pergunta.indexOf(nome);
+
+        if (
+            posicao !== -1 &&
+            nome.length >= 2
+        ) {
+
+            encontradasNaPergunta.push({
+
+                nome: estacao,
+
+                posicao: posicao,
+
+                tamanho: nome.length
+
+            });
+
+        }
+
+    }
+
+
+    // Ordena pela posição na FRASE,
+    // não pelo tamanho do nome
+    encontradasNaPergunta.sort(
+        (a, b) =>
+            a.posicao - b.posicao
+    );
+
+
+    if (!origem && encontradasNaPergunta.length >= 1) {
+
+        origem =
+            encontradasNaPergunta[0].nome;
+
+    }
+
+
+    if (!destino && encontradasNaPergunta.length >= 2) {
+
+        destino =
+            encontradasNaPergunta.find(
+                item =>
+                    normalizar(item.nome) !==
+                    normalizar(origem || "")
+            )?.nome || null;
+
+    }
+
+}
+
+
+// ==========================================
+// NÃO DEIXAR ORIGEM E DESTINO IGUAIS
+// ==========================================
+
+if (
+    origem &&
+    destino &&
+    normalizar(origem) ===
+    normalizar(destino)
+) {
+
+    destino = null;
+
+}
+
+
+// ==========================================
+// MOSTRAR ERRO SE NÃO ENCONTROU DUAS
+// ==========================================
+
+if (!origem || !destino) {
+
+    textoPesquisa.innerHTML = `
+
+        <strong>🔎 Não consegui entender a rota.</strong>
+
+        <br><br>
+
+        Tente escrever assim:
+
+        <br><br>
+
+        “Estou na Luz, dá para ir até Estudantes?”
+
+        <br>
+
+        “Estou em Estudantes, quero ir para Luz.”
+
+        <br>
+
+        “De Sé até Pinheiros.”
+
+        <br>
+
+        “Saindo de Santo André para Luz.”
+
+    `;
+
+    return;
+
+}
 
     // ==========================================
     // CALCULAR ROTA
